@@ -3,15 +3,23 @@
         "shiny.apply": "src/apply.js",
         "shiny.bind": "src/bind.js",
         "shiny.call": "src/call.js",
+        "shiny.contains": "src/contains.js",
         "shiny.each": "src/each.js",
+        "shiny.every": "src/every.js",
+        "shiny.expose": "src/expose.js",
         "shiny.filter": "src/filter.js",
         "shiny.has": "src/has.js",
+        "shiny.head": "src/head.js",
         "shiny.keys": "src/keys.js",
         "shiny.map": "src/map.js",
+        "shiny.partial": "src/partial.js",
         "shiny.pipe": "src/pipe.js",
         "shiny.piped": "src/piped.js",
+        "shiny.pluck": "src/pluck.js",
+        "shiny.privatize": "src/privatize.js",
         "shiny.reduce": "src/reduce.js",
         "shiny.some": "src/some.js",
+        "shiny.tail": "src/tail.js",
         "shiny.values": "src/values.js"
     }
 }

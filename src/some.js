@@ -20,6 +20,8 @@ using().define("shiny.some", function () {
                 return value;
             }
         }
+        
+        return false;
     }
     
     function someObject (collection, fn) {
@@ -34,6 +36,8 @@ using().define("shiny.some", function () {
                 return value;
             }
         }
+        
+        return false;
     }
     
 });

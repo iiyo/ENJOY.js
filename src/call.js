@@ -8,7 +8,7 @@ using().define("shiny.call", function () {
         
         args.shift();
         
-        return fn.apply(args);
+        return fn.apply(undefined, args);
     }
     
     return call;
