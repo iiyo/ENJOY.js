@@ -1,0 +1,17 @@
+{
+    "files": {
+        "shiny.apply": "src/apply.js",
+        "shiny.bind": "src/bind.js",
+        "shiny.call": "src/call.js",
+        "shiny.each": "src/each.js",
+        "shiny.filter": "src/filter.js",
+        "shiny.has": "src/has.js",
+        "shiny.keys": "src/keys.js",
+        "shiny.map": "src/map.js",
+        "shiny.pipe": "src/pipe.js",
+        "shiny.piped": "src/piped.js",
+        "shiny.reduce": "src/reduce.js",
+        "shiny.some": "src/some.js",
+        "shiny.values": "src/values.js"
+    }
+}
