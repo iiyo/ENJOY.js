@@ -17,7 +17,7 @@ using().define("shiny.some", function () {
             value = fn(collection[index], index, collection);
             
             if (value) {
-                return value;
+                return true;
             }
         }
         
@@ -33,7 +33,7 @@ using().define("shiny.some", function () {
             value = fn(collection[key], key, collection);
             
             if (value) {
-                return value;
+                return true;
             }
         }
         
