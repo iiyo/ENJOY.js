@@ -1,5 +1,6 @@
 {
     "files": {
+        "shiny.types": "src/types.js",
         "shiny.collections": "src/collections.js",
         "shiny.comparisons": "src/comparisons.js",
         "shiny.functions": "src/functions.js",

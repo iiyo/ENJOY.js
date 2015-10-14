@@ -2,7 +2,9 @@
 
 (function () {
     
-    var out = {};
+    var out = {
+        hidden_properties: []
+    };
     
     {{content}}
     

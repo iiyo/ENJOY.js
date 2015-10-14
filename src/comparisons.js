@@ -63,6 +63,10 @@
                 }
             }
             
+            if (some(out.hidden_properties, function (key) { return a[key] !== b[key]; })) {
+                return false;
+            }
+            
             return true;
         }
         

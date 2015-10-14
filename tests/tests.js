@@ -67,7 +67,7 @@
     
     var printType = s.method();
     
-    s.dispatch(printType, function (n) { return typeof n; }, function (n) { return typeof n; });
+    //s.dispatch(printType, function (n) { return typeof n; }, function (n) { return typeof n; });
     
     /*
     s.specialize(
@@ -78,9 +78,9 @@
     );
     */
     
-    s.specialize(printType, "number", "number", console.log.bind(console, ">> number, number"));
-    s.specialize(printType, "string", "string", console.log.bind(console, ">> string, string"));
-    s.specialize(printType, "object", "object", console.log.bind(console, ">> object, object"));
+    s.specialize(printType, s.t_number, s.t_number, console.log.bind(console, ">> number, number"));
+    s.specialize(printType, s.t_string, s.t_string, console.log.bind(console, ">> string, string"));
+    s.specialize(printType, s.t_object, s.t_object, console.log.bind(console, ">> object, object"));
     
     printType([], {foo: 3});
     printType(5, 7);
@@ -95,5 +95,31 @@
     print({foo: "bar"});
     
     console.log(s.equal({}, {foo: "foo"}));
+    
+    var vehicle = s.type({wheels: s.t_integer});
+    var car = s.type({seats: s.t_integer});
+    
+    s.derive(car, vehicle);
+    
+    console.log("Is {wheels: 4} a vehicle?", s.is_a({wheels: 4}, vehicle));
+    console.log("Is {wheels: 4} a car?", s.is_a({wheels: 4}, car));
+    
+    console.log("Is {wheels: 4, seats: 5} a vehicle?", s.is_a({wheels: 4, seats: 5}, vehicle));
+    console.log("Is {wheels: 4, seats: 5} a car?", s.is_a({wheels: 4, seats: 5}, car));
+    
+    console.log("Is {seats: 5} a vehicle?", s.is_a({seats: 5}, vehicle));
+    console.log("Is {seats: 5} a car?", s.is_a({seats: 5}, car));
+    
+    console.log("---------- EMPTY TYPES");
+    
+    var father = s.type();
+    var mother = s.type();
+    var child = s.type();
+    
+    s.derive(child, father);
+    s.derive(child, mother);
+    
+    console.log("Child, father:", s.is_a(child, father));
+    console.log("Father, child:", s.is_a(father, child));
     
 }());

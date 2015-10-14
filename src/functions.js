@@ -14,10 +14,18 @@
         
         var args = [].slice.call(arguments);
         
-        args[0] = undefined;
-        args.unshift(undefined);
+        args.shift();
         
-        return apply(fn.bind, args);
+        return function () {
+            
+            var allArgs = args.slice(), i;
+            
+            for (i = 0; i < arguments.length; i += 1) {
+                allArgs.push(arguments[i]);
+            }
+            
+            fn.apply(undefined, allArgs);
+        };
     }
     
     out.bind = bind;

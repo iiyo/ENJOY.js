@@ -56,6 +56,11 @@
                         return true;
                     }
                     
+                    if (is_a(dispatchValue, comparator)) {
+                        currentScore += METHOD_PRECEDENCE_SCORE_IS_A * argumentOrderModificator;
+                        return true;
+                    }
+                    
                     return false;
                 });
                 
@@ -168,6 +173,12 @@
             method.$__implementations__.push(specialization);
         }
     }
+    
+    out.hidden_properties.push("$__comparators__");
+    out.hidden_properties.push("$__default__");
+    out.hidden_properties.push("$__dispatchers__");
+    out.hidden_properties.push("$__implementation__");
+    out.hidden_properties.push("$__implementations__");
     
     out.specialize = specialize;
     
