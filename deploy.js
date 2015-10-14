@@ -1,10 +1,11 @@
 /* global require, console */
 
-var fs, scriptsFilePath;
+var fs, scriptsFilePath, template;
 var minify = require("minify");
 
 fs = require('fs');
 scriptsFilePath = 'scripts.json';
+template = "" + fs.readFileSync('deploy-template.tpl');
 
 function mkdirSync (path) {
     
@@ -38,32 +39,24 @@ function processScriptsFileFn (data) {
 
 function concatJsFiles (files) {
     
-    var concatFile, moduleName, moduleString;
+    var concatFile, moduleName;
     
-    moduleString = '';
     concatFile = ''; 
     
     function fn (path) {
         
         function concFn (data) {
-            concatFile += "\n\n" + removeUnwantedSections(data);
+            concatFile += "" + removeUnwantedSections(data);
         };
         
         concFn(fs.readFileSync('./' + path, 'utf-8'));
     };
     
-    moduleString += "\n\nvar $__ShinyScripts = document.getElementsByTagName('script');";
-    moduleString += "\nvar $__ShinyPath = $__ShinyScripts[$__ShinyScripts.length - 1].src;\n";
-    
-    for (moduleName in files) {
-        moduleString += "\nusing.modules['" + moduleName + "'] = $__ShinyPath;";
-    }
-    
-    concatFile += moduleString;
-    
     for (moduleName in files) {
         fn(files[moduleName]);
     }
+    
+    concatFile = template.replace("{{content}}", concatFile);
     
     writeFileFn(concatFile);
 };
