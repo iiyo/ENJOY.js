@@ -1,154 +1,18 @@
+/* global using, define, window, module */
 
-
-var $__ShinyScripts = document.getElementsByTagName('script');
-var $__ShinyPath = $__ShinyScripts[$__ShinyScripts.length - 1].src;
-
-using.modules['shiny.apply'] = $__ShinyPath;
-using.modules['shiny.bind'] = $__ShinyPath;
-using.modules['shiny.call'] = $__ShinyPath;
-using.modules['shiny.contains'] = $__ShinyPath;
-using.modules['shiny.each'] = $__ShinyPath;
-using.modules['shiny.every'] = $__ShinyPath;
-using.modules['shiny.expose'] = $__ShinyPath;
-using.modules['shiny.filter'] = $__ShinyPath;
-using.modules['shiny.has'] = $__ShinyPath;
-using.modules['shiny.head'] = $__ShinyPath;
-using.modules['shiny.keys'] = $__ShinyPath;
-using.modules['shiny.map'] = $__ShinyPath;
-using.modules['shiny.partial'] = $__ShinyPath;
-using.modules['shiny.pipe'] = $__ShinyPath;
-using.modules['shiny.piped'] = $__ShinyPath;
-using.modules['shiny.pluck'] = $__ShinyPath;
-using.modules['shiny.privatize'] = $__ShinyPath;
-using.modules['shiny.reduce'] = $__ShinyPath;
-using.modules['shiny.some'] = $__ShinyPath;
-using.modules['shiny.tail'] = $__ShinyPath;
-using.modules['shiny.values'] = $__ShinyPath;
-
-/* global using */
-
-using().define("shiny.apply", function () {
+(function () {
     
-    function apply (fn, args) {
-        return fn.apply(undefined, args);
-    }
+    var out = {};
     
-    return apply;
-    
-});
-
-
-/* global using */
-
-using("shiny.apply").define("shiny.bind", function (apply) {
-    
-    function bind (fn) {
         
-        var args = [].slice.call(arguments);
-        
-        args[0] = undefined;
-        args.unshift(undefined);
-        
-        return apply(fn.bind, args);
-    }
-    
-    return bind;
-    
-});
-
-
-/* global using */
-
-using().define("shiny.call", function () {
-    
-    function call (fn) {
-        
-        var args = [].slice.call(arguments);
-        
-        args.shift();
-        
-        return fn.apply(undefined, args);
-    }
-    
-    return call;
-    
-});
-
-
-/* global using */
-
-using("shiny.some").define("shiny.contains", function (some) {
-    
     function contains (collection, item) {
         return some(collection, function (currentItem) {
             return item === currentItem;
         }) || false;
     }
     
-    return contains;
+    out.contains = contains;
     
-});
-
-
-/* global using */
-
-using().define("shiny.each", function () {
-    
-    function each (collection, fn) {
-        
-        if (Array.isArray(collection)) {
-            return collection.forEach(fn);
-        }
-        
-        if (typeof collection.length === "number" && collection.length > 0) {
-            return eachIterable(collection, fn);
-        }
-        
-        return eachObject(collection, fn);
-    }
-    
-    return each;
-    
-    function eachIterable (collection, fn) {
-        for (var index = 0; index < collection.length; index += 1) {
-            fn(collection[index], index, collection);
-        }
-    }
-    
-    function eachObject (collection, fn) {
-        for (var key in collection) {
-            fn(collection[key], key, collection);
-        }
-    }
-    
-});
-
-
-/* global using */
-
-using("shiny.some").define("shiny.every", function (some) {
-    
-    function every (collection, fn) {
-        
-        var result = true;
-        
-        some(collection, function (item, key) {
-            
-            if (!fn(item, key, collection)) {
-                result = false;
-                return true;
-            }
-            
-            return false;
-        });
-        
-        return result;
-    }
-    
-    return every;
-    
-});
-
 
 //
 // Turns an array of objects into an object where the keys are the
@@ -159,9 +23,6 @@ using("shiny.some").define("shiny.every", function (some) {
 //     [{name: "foo"},{name: "bar"}] => {foo: {name: "foo"}, bar: {name: "bar"}}
 //
 
-/* global using */
-
-using("shiny.each").define("shiny.expose", function (each) {
     
     function expose (collection, key) {
         
@@ -174,14 +35,8 @@ using("shiny.each").define("shiny.expose", function (each) {
         return result;
     }
     
-    return expose;
+    out.expose = expose;
     
-});
-
-
-/* global using */
-
-using("shiny.each").define("shiny.filter", function (each) {
     
     function filter (collection, fn) {
         
@@ -196,14 +51,27 @@ using("shiny.each").define("shiny.filter", function (each) {
         return items;
     }
     
-    return filter;
+    out.filter = filter;
+        
+    function find (collection, fn) {
+        
+        var value;
+        
+        some(collection, function (item, key) {
+            
+            if (fn(item, key, collection)) {
+                value = item;
+                return true;
+            }
+            
+            return false;
+        });
+        
+        return value;
+    }
     
-});
-
-
-/* global using */
-
-using("shiny.some").define("shiny.has", function (some) {
+    out.find = find;
+    
     
     function has (collection, key) {
         return some(collection, function (item, currentKey) {
@@ -211,27 +79,15 @@ using("shiny.some").define("shiny.has", function (some) {
         }) || false;
     }
     
-    return has;
+    out.has = has;
     
-});
-
-
-/* global using */
-
-using().define("shiny.head", function () {
     
     function head (iterable) {
         return iterable[0];
     }
     
-    return head;
+    out.head = head;
     
-});
-
-
-/* global using */
-
-using("shiny.map").define("shiny.keys", function (map) {
     
     function keys (collection) {
         return map(collection, function (item, key) {
@@ -239,14 +95,8 @@ using("shiny.map").define("shiny.keys", function (map) {
         });
     }
     
-    return keys;
+    out.keys = keys;
     
-});
-
-
-/* global using */
-
-using("shiny.each").define("shiny.map", function (each) {
     
     function map (collection, fn) {
         
@@ -259,13 +109,199 @@ using("shiny.each").define("shiny.map", function (each) {
         return items;
     }
     
-    return map;
-});
+    out.map = map;
+    
+    
+    function pluck (collection, key) {
+        
+        var result = [];
+        
+        map(collection, function (item) {
+            if (key in item) {
+                result.push(item[key]);
+            }
+        });
+        
+        return result;
+    }
+    
+    out.pluck = pluck
+    
 
+//
+// Turns an object into an array by putting its keys into the objects
+// contained within the array.
+//
+// Example:
+//
+//     {foo: {}, bar: {}} => [{name: "foo"},{name: "bar"}]
+//
 
-/* global using */
-
-using("shiny.apply").define("shiny.partial", function (apply) {
+    
+    function privatize (collection, key) {
+        
+        var result = [];
+        
+        each(collection, function (item, currentKey) {
+            
+            item[key] = currentKey;
+            
+            result.push(item);
+        });
+        
+        return result;
+    }
+    
+    out.privatize = privatize;
+    
+    
+    function reduce (collection, fn, value) {
+        
+        each(collection, function (item, key) {
+            value = fn(value, item, key, collection);
+        });
+        
+        return value;
+    }
+    
+    out.reduce = reduce;
+    
+    
+    function tail (iterable) {
+        return iterable.slice(1);
+    }
+    
+    out.tail = tail;
+    
+    
+    function take (obj, key) {
+        return obj[key];
+    }
+    
+    out.take = take;
+    
+    
+    function taker (key) {
+        return partial(take, undefined, key);
+    }
+    
+    out.taker = taker;
+    
+    
+    function values (collection) {
+        return map(collection, function (item) {
+            return item;
+        });
+    }
+    
+    out.values = values;
+        
+    function identical (a, b) {
+        return a === b;
+    }
+    
+    function equal (a, b) {
+        
+        var key, index, isArray, isArgumentsObject;
+        
+        if (a === b) {
+            return true;
+        }
+        
+        if (typeof a !== typeof b) {
+            return false;
+        }
+        
+        if (a === null && b !== null) {
+            return false;
+        }
+        
+        isArray = Array.isArray(a);
+        isArgumentsObject = typeof a === "object" && a.toString() === "[object Arguments]";
+        
+        if (isArray || isArgumentsObject) {
+            
+            if (isArray && !Array.isArray(b)) {
+                return false;
+            }
+            
+            if (isArgumentsObject && b.toString() !== "[object Arguments]") {
+                return false;
+            }
+            
+            if (a.length !== b.length) {
+                return false;
+            }
+            
+            for (index = 0; index < a.length; index += 1) {
+                if (!equal(a[index], b[index])) {
+                    return false;
+                }
+            }
+            
+            return true;
+        }
+        
+        if (typeof a === "object") {
+            
+            if (a.prototype !== b.prototype) {
+                return false;
+            }
+            
+            for (key in a) {
+                if (!equal(a[key], b[key])) {
+                    return false;
+                }
+            }
+            
+            for (key in b) {
+                if (!equal(a[key], b[key])) {
+                    return false;
+                }
+            }
+            
+            return true;
+        }
+        
+        return false;
+    }
+    
+    out.equal = equal;
+    
+    
+    function apply (fn, args) {
+        
+        if (typeof fn !== "function") {
+            throw new TypeError("Argument 'fn' must be a function.");
+        }
+        
+        return fn.apply(undefined, args);
+    }
+    
+    out.apply = apply;
+    
+    function bind (fn) {
+        
+        var args = [].slice.call(arguments);
+        
+        args[0] = undefined;
+        args.unshift(undefined);
+        
+        return apply(fn.bind, args);
+    }
+    
+    out.bind = bind;
+    
+    function call (fn) {
+        
+        var args = [].slice.call(arguments);
+        
+        args.shift();
+        
+        return fn.apply(undefined, args);
+    }
+    
+    out.call = call;
     
     function partial (fn) {
         
@@ -294,14 +330,7 @@ using("shiny.apply").define("shiny.partial", function (apply) {
         };
     }
     
-    return partial;
-    
-});
-
-
-/* global using */
-
-using("shiny.each").define("shiny.pipe", function (each) {
+    out.partial = partial;
     
     function pipe (value) {
         
@@ -314,14 +343,7 @@ using("shiny.each").define("shiny.pipe", function (each) {
         return value;
     }
     
-    return pipe;
-    
-});
-
-
-/* global using */
-
-using("shiny.pipe", "shiny.apply").define("shiny.piped", function (pipe, apply) {
+    out.pipe = pipe;
     
     function piped () {
         
@@ -337,91 +359,61 @@ using("shiny.pipe", "shiny.apply").define("shiny.piped", function (pipe, apply) 
         };
     };
     
-    return piped;
-});
-
-
-/* global using */
-
-using("shiny.each").define("shiny.pluck", function (map) {
+    out.piped = piped;
+        
+    function each (collection, fn) {
+        
+        if (Array.isArray(collection)) {
+            return collection.forEach(fn);
+        }
+        
+        if (typeof collection.length === "number" && collection.length > 0) {
+            return eachIterable(collection, fn);
+        }
+        
+        return eachObject(collection, fn);
+    }
     
-    function pluck (collection, key) {
+    out.each = each;
+    
+    function eachIterable (collection, fn) {
+        for (var index = 0; index < collection.length; index += 1) {
+            fn(collection[index], index, collection);
+        }
+    }
+    
+    function eachObject (collection, fn) {
+        for (var key in collection) {
+            fn(collection[key], key, collection);
+        }
+    }
+    
+    
+    function every (collection, fn) {
         
-        var result = [];
+        var result = true;
         
-        map(collection, function (item) {
-            if (key in item) {
-                result.push(item[key]);
+        some(collection, function (item, key) {
+            
+            if (!fn(item, key, collection)) {
+                result = false;
+                return true;
             }
+            
+            return false;
         });
         
         return result;
     }
     
-    return pluck;
+    out.every = every;
     
-});
-
-
-//
-// Turns an object into an array by putting its keys into the objects
-// contained within the array.
-//
-// Example:
-//
-//     {foo: {}, bar: {}} => [{name: "foo"},{name: "bar"}]
-//
-
-/* global using */
-
-using("shiny.each").define("shiny.privatize", function (each) {
-    
-    function privatize (collection, key) {
-        
-        var result = [];
-        
-        each(collection, function (item, currentKey) {
-            
-            item[key] = currentKey;
-            
-            result.push(item);
-        });
-        
-        return result;
-    }
-    
-    return privatize;
-    
-});
-
-
-/* global using */
-
-using("shiny.each").define("shiny.reduce", function (each) {
-    
-    function reduce (collection, fn, value) {
-        
-        each(collection, function (item, key) {
-            value = fn(value, item, key, collection);
-        });
-        
-        return value;
-    }
-    
-    return reduce;
-    
-});
-
-
-/* global using */
-
-using().define("shiny.some", function () {
     
     function some (collection, fn) {
         return Array.isArray(collection) ? someArray(collection, fn) : someObject(collection, fn);
     }
     
-    return some;
+    out.some = some;
     
     function someArray (collection, fn) {
         
@@ -432,7 +424,7 @@ using().define("shiny.some", function () {
             value = fn(collection[index], index, collection);
             
             if (value) {
-                return value;
+                return true;
             }
         }
         
@@ -448,39 +440,219 @@ using().define("shiny.some", function () {
             value = fn(collection[key], key, collection);
             
             if (value) {
-                return value;
+                return true;
             }
         }
         
         return false;
     }
     
-});
-
-
-/* global using */
-
-using().define("shiny.tail", function () {
     
-    function tail (iterable) {
-        return iterable.slice(1);
-    }
+    var METHOD_PRECEDENCE_SCORE_FN = 10;
+    var METHOD_PRECEDENCE_SCORE_ID = 8;
+    var METHOD_PRECEDENCE_SCORE_EQ = 6;
+    var METHOD_PRECEDENCE_SCORE_IS_A = 4;
     
-    return tail;
-    
-});
-
-
-/* global using */
-
-using("shiny.map").define("shiny.values", function (map) {
-    
-    function values (collection) {
-        return map(collection, function (item) {
-            return item;
+    function method (defaultFn) {
+        
+        var dispatchers = [].slice.call(arguments, 1);
+        
+        function fn () {
+            
+            var argsLength = arguments.length;
+            var implementation = fn.$__default__;
+            var highestScore = 0;
+            
+            var dispatchValues = map(arguments, function (arg, i) {
+                
+                var dispatcher = fn.$__dispatchers__[i] || id;
+                
+                //console.log(dispatcher);
+                
+                return call(dispatcher, arg);
+            });
+            
+            //console.log("dispatchValues:", dispatchValues);
+            
+            some(fn.$__implementations__, function (impl) {
+                
+                var currentScore = 0;
+                var predicateMatches = 0;
+                
+                if (argsLength < impl.$__comparators__.length) {
+                    return false;
+                }
+                
+                var match = every(dispatchValues, function (dispatchValue, i) {
+                    
+                    var comparator = impl.$__comparators__[i];
+                    var comparatorIsFunction = typeof comparator === "function";
+                    var argumentOrderModificator = dispatchValues.length - i;
+                    
+                    if (comparatorIsFunction && comparator(dispatchValue)) {
+                        predicateMatches += 1;
+                        currentScore += METHOD_PRECEDENCE_SCORE_FN * argumentOrderModificator;
+                        return true;
+                    }
+                    
+                    if (identical(dispatchValue, comparator)) {
+                        currentScore += METHOD_PRECEDENCE_SCORE_ID * argumentOrderModificator;
+                        return true;
+                    }
+                    
+                    if (equal(dispatchValue, comparator)) {
+                        currentScore += METHOD_PRECEDENCE_SCORE_EQ * argumentOrderModificator;
+                        return true;
+                    }
+                    
+                    return false;
+                });
+                
+                if (currentScore > highestScore) {
+                    highestScore = currentScore;
+                    implementation = impl.$__implementation__;
+                }
+                
+                //console.log("currentScore:", currentScore);
+                
+                if (predicateMatches > 0 && predicateMatches === dispatchValues.length) {
+                    console.log("Found full predicate match. Shortcutting implementation search.");
+                    return true;
+                }
+                
+                return false;
+            });
+            
+            return apply(implementation, arguments);
+        }
+        
+        if (defaultFn && typeof defaultFn !== "function") {
+            throw new TypeError("Argument 1 must be a function.");
+        }
+        
+        Object.defineProperty(fn, "$__default__", {
+            value: defaultFn || function () {
+                throw new TypeError("No matching implementation found for method arguments.");
+            },
+            writable: true
         });
+        
+        Object.defineProperty(fn, "$__dispatchers__", {
+            value: [],
+            writable: true
+        });
+        
+        Object.defineProperty(fn, "$__implementations__", {
+            value: [],
+            writable: true
+        });
+        
+        dispatchers.unshift(fn);
+        
+        apply(dispatch, dispatchers);
+        
+        return fn;
     }
     
-    return values;
+    out.method = method;
     
-});
+    function dispatch (method) {
+        
+        var dispatchers = [].slice.call(arguments, 1);
+        
+        each(dispatchers, function (dispatcher, index) {
+            
+            var dtype = typeof dispatcher;
+            
+            console.log("dispatcher:", dtype, dispatcher);
+            
+            if (dtype !== "function" && (dtype === "string" || dtype === "number")) {
+                dispatcher = partial(pluck, undefined, dispatcher);
+            }
+            else if (dtype !== "function") {
+                throw new TypeError("Dispatchers must be strings, numbers or functions.");
+            }
+            
+            dispatchers[index] = dispatcher;
+        });
+        
+        method.$__dispatchers__ = dispatchers;
+    }
+    
+    out.dispatch = dispatch;
+        
+    function specialize () {
+        
+        var args = [].slice.call(arguments);
+        var method = args.shift();
+        var implementation = args.pop();
+        var comparators = args.slice();
+        var specialization;
+        
+        var old = find(
+            method.$__implementations__,
+            function (impl) {
+                return every(impl.$__comparators__, function (comp, i) {
+                    return equal(comp, comparators[i]);
+                });
+            }
+        );
+        
+        if (old) {
+            old.$__implementation__ = implementation;
+        }
+        else {
+            
+            specialization = {};
+            
+            Object.defineProperty(specialization, "$__comparators__", {
+                value: comparators
+            });
+            
+            Object.defineProperty(specialization, "$__implementation__", {
+                value: implementation,
+                writable: true
+            });
+            
+            method.$__implementations__.push(specialization);
+        }
+    }
+    
+    out.specialize = specialize;
+        
+    function id (thing) {
+        return thing;
+    }
+    
+    out.id = id;
+    
+
+    
+    (function () {
+        
+        var scripts;
+        
+        if (typeof using === "function") {
+            
+            scripts = document.getElementsByTagName("script");
+            using.modules.shiny = scripts[scripts.length - 1].src;
+            
+            using().define("shiny", function () {
+                return out;
+            });
+        }
+        else if (typeof module === "object" && module !== null) {
+            module.exports = out;
+        }
+        else if (typeof define === "function") {
+            define(function () {
+                return out;
+            });
+        }
+        else if (typeof window === "object" && window !== null) {
+            window.shiny = out;
+        }
+        
+    }());
+}());
+

@@ -1,34 +1,8 @@
-/* global using */
+/* global shiny */
 
-using(
-    "shiny.apply",
-    "shiny.bind",
-    "shiny.call",
-    "shiny.each",
-    "shiny.filter",
-    "shiny.has",
-    "shiny.keys",
-    "shiny.map",
-    "shiny.pipe",
-    "shiny.piped",
-    "shiny.reduce",
-    "shiny.some",
-    "shiny.values"
-).run(function (
-    apply,
-    bind,
-    call,
-    each,
-    filter,
-    has,
-    keys,
-    map,
-    pipe,
-    piped,
-    reduce,
-    some,
-    values
-) {
+(function () {
+    
+    var s = shiny;
     
     function assert (value, message) {
         if (!value) {
@@ -40,7 +14,7 @@ using(
         
         var obj = {baz: "bar"};
         var original = [1, 2, 3, "foo", obj];
-        var result = values(original);
+        var result = s.values(original);
         
         assert(Array.isArray(result), "Return value of values() must be an array!");
         
@@ -55,11 +29,11 @@ using(
         
         var obj = {baz: "bar"};
         var original = [1, 2, 3, "foo", obj];
-        var result = keys(original);
+        var result = s.keys(original);
         
         assert(Array.isArray(result), "Return value of keys() must be an array!");
         
-        each(original, function (item, index) {
+        s.each(original, function (item, index) {
             assert(item === original[result[index]], "Values must be the same.");
         });
         
@@ -70,13 +44,13 @@ using(
         
         var original = [1, 2, 3, 4, 5];
         var expected = [1, 2, 3, undefined, undefined];
-        var result = filter(original, function (item) {
+        var result = s.filter(original, function (item) {
             return item < 4;
         });
         
         assert(result.length === 3, "Result is expected to contain 3 items.");
         
-        each(expected, function (item, index) {
+        s.each(expected, function (item, index) {
             assert(item === result[index], "Result is different than expected.");
         });
         
@@ -91,4 +65,35 @@ using(
     testKeys();
     testFilter();
     
-});
+    var printType = s.method();
+    
+    s.dispatch(printType, function (n) { return typeof n; }, function (n) { return typeof n; });
+    
+    /*
+    s.specialize(
+        printType,
+        function (n) { return n === "number" || n === "string"; },
+        function (n) { return n === "number" || n === "string"; },
+        console.log.bind(console, ">> (string/number), (string/number)!")
+    );
+    */
+    
+    s.specialize(printType, "number", "number", console.log.bind(console, ">> number, number"));
+    s.specialize(printType, "string", "string", console.log.bind(console, ">> string, string"));
+    s.specialize(printType, "object", "object", console.log.bind(console, ">> object, object"));
+    
+    printType([], {foo: 3});
+    printType(5, 7);
+    printType("foo", "bar", 123);
+    
+    var print = s.method(function () { console.log("No implementation found."); });
+    
+    s.specialize(print, {foo: "bar"},
+        console.log.bind(console, "Dispatch on deeply matched object: check!"));
+    
+    print({});
+    print({foo: "bar"});
+    
+    console.log(s.equal({}, {foo: "foo"}));
+    
+}());
