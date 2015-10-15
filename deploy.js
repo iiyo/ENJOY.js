@@ -39,14 +39,14 @@ function processScriptsFileFn (data) {
 
 function concatJsFiles (files) {
     
-    var concatFile, moduleName;
+    var coreFile, moduleName, fullFile;
     
-    concatFile = ''; 
+    coreFile = ''; 
     
     function fn (path) {
         
         function concFn (data) {
-            concatFile += "" + removeUnwantedSections(data);
+            coreFile += "" + removeUnwantedSections(data);
         };
         
         concFn(fs.readFileSync('./' + path, 'utf-8'));
@@ -56,12 +56,14 @@ function concatJsFiles (files) {
         fn(files[moduleName]);
     }
     
-    concatFile = template.replace("{{content}}", concatFile);
+    coreFile = template.replace("{{content}}", coreFile);
+    fullFile = fs.readFileSync("./libs/using.js/using.js", "utf-8") + coreFile;
     
-    writeFileFn(concatFile);
+    writeFileFn(coreFile, "enjoy-core");
+    writeFileFn(fullFile, "enjoy");
 };
 
-function writeFileFn (concatFile) {
+function writeFileFn (contents, fileNameBase) {
     
     function makeErrorFn (successText) {
         return function (err) {
@@ -76,14 +78,14 @@ function writeFileFn (concatFile) {
     }
     
     mkdirSync('./bin');
-    fs.writeFile('./bin/enjoy.js', concatFile, makeErrorFn('File created.'));
+    fs.writeFile('./bin/' + fileNameBase + '.js', contents, makeErrorFn('File created.'));
     
-    minify({ext: '.js', data: concatFile}, function(error, data) {
+    minify({ext: '.js', data: contents}, function(error, data) {
         if (error) {
             console.log(error);
         }
         else {
-            fs.writeFile('./bin/enjoy.min.js', data, 
+            fs.writeFile('./bin/' + fileNameBase + '.min.js', data, 
                 makeErrorFn("Minified file created."));
         }
     });
