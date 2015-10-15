@@ -792,7 +792,7 @@
                 //console.log("currentScore:", currentScore);
                 
                 if (predicateMatches > 0 && predicateMatches === dispatchValues.length) {
-                    console.log("Found full predicate match. Shortcutting implementation search.");
+                    //console.log("Found full predicate match. Stopping implementation search.");
                     return true;
                 }
                 
@@ -917,9 +917,9 @@
         if (typeof using === "function") {
             
             scripts = document.getElementsByTagName("script");
-            using.modules.shiny = scripts[scripts.length - 1].src;
+            using.modules.enjoy = scripts[scripts.length - 1].src;
             
-            using().define("shiny", function () {
+            using().define("enjoy", function () {
                 return out;
             });
         }
@@ -932,7 +932,7 @@
             });
         }
         else if (typeof window === "object" && window !== null) {
-            window.shiny = out;
+            window.enjoy = out;
         }
         
     }());

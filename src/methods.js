@@ -72,7 +72,7 @@
                 //console.log("currentScore:", currentScore);
                 
                 if (predicateMatches > 0 && predicateMatches === dispatchValues.length) {
-                    console.log("Found full predicate match. Shortcutting implementation search.");
+                    //console.log("Found full predicate match. Stopping implementation search.");
                     return true;
                 }
                 

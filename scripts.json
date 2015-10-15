@@ -1,11 +1,11 @@
 {
     "files": {
-        "shiny.types": "src/types.js",
-        "shiny.collections": "src/collections.js",
-        "shiny.comparisons": "src/comparisons.js",
-        "shiny.functions": "src/functions.js",
-        "shiny.iteration": "src/iteration.js",
-        "shiny.methods": "src/methods.js",
-        "shiny.misc": "src/misc.js"
+        "enjoy.types": "src/types.js",
+        "enjoy.collections": "src/collections.js",
+        "enjoy.comparisons": "src/comparisons.js",
+        "enjoy.functions": "src/functions.js",
+        "enjoy.iteration": "src/iteration.js",
+        "enjoy.methods": "src/methods.js",
+        "enjoy.misc": "src/misc.js"
     }
 }

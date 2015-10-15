@@ -76,14 +76,14 @@ function writeFileFn (concatFile) {
     }
     
     mkdirSync('./bin');
-    fs.writeFile('./bin/shiny.js', concatFile, makeErrorFn('File created.'));
+    fs.writeFile('./bin/enjoy.js', concatFile, makeErrorFn('File created.'));
     
     minify({ext: '.js', data: concatFile}, function(error, data) {
         if (error) {
             console.log(error);
         }
         else {
-            fs.writeFile('./bin/shiny.min.js', data, 
+            fs.writeFile('./bin/enjoy.min.js', data, 
                 makeErrorFn("Minified file created."));
         }
     });
