@@ -39,7 +39,7 @@ using("enjoy::some").run(function (some) {
     some([1, 2, 3], function (item, index, collection) {
         
         if (/* we have what we wanted */) {
-            return true; /* and shortcut ex */
+            return true; // shortcuts iteration
         }
         
         return true;
@@ -65,28 +65,28 @@ run(function (type, derive, is_a) {
     var t_number = type(is_number);
     var t_integer = type(is_integer);
     
-    derive(t_integer, t_number); // define t_integer as a subtype of t_number
+    derive(t_integer, t_number); // make t_integer subtype of t_number
     
-    console.log(is_a(t_integer, t_number)); // true, because it's derived
-    console.log(is_a(0.5, t_number)); // true, because it matches t_number's predicate
-    console.log(is_a(1, t_number)); // true, because it matches t_number's predicate
-    console.log(is_a(1, t_integer)); // true, because it matches t_integer's predicate
-    console.log(is_a(0.5, t_integer)); // false, because it doesn't match t_integer's predicate
+    console.log(is_a(t_integer, t_number)); // true: it's derived
+    console.log(is_a(0.5, t_number)); // true: matches t_number's predicate
+    console.log(is_a(1, t_number)); // true: matches t_number's predicate
+    console.log(is_a(1, t_integer)); // true: matches t_integer's predicate
+    console.log(is_a(0.5, t_integer)); // false: doesn't match t_integer's predicate
     
     // So far this didn't really use the hierarchical aspect much.
     // Let's make the relationship established by derive show:
     
-    var vehicle = type(); // No predicate: nothing can be a vehicle, but it can be derived
-    var car = type({wheels: t_integer}); // Using a schema instead of a predicate function
+    var vehicle = type(); // No predicate: vehicle is an "abstract" base type
+    var car = type({wheels: t_integer}); // Matching a schema
     
-    console.log(is_a(car, vehicle)); // false: relationship has not been established yet
-    console.log(is_a({wheels: 4}, vehicle)); // false: relationship has not been established yet
-    console.log(is_a({wheels: 4}, car)); // true: matched by the schema
+    console.log(is_a(car, vehicle)); // false: not related yet
+    console.log(is_a({wheels: 4}, vehicle)); // false: not related yet
+    console.log(is_a({wheels: 4}, car)); // true: matched by schema
     
-    derive(car, vehicle);
+    derive(car, vehicle); // now car's a vehicle
     
-    console.log(is_a({wheels: 4}, vehicle)); // true: it is a car, therefore it's a vehicle
-    console.log(is_a(car, vehicle)); // true: type car is now known as subtype of vehicle
+    console.log(is_a({wheels: 4}, vehicle)); // true: it's a car, so it's a vehicle
+    console.log(is_a(car, vehicle)); // true: type car's a subtype of vehicle
 });
 ```
 
@@ -101,13 +101,20 @@ Multimethods are methods that don't belong to classes; therefore there's no need
 your data inside of classes.
 
 ```javascript
-using("enjoy::method", "enjoy::specialize", "enjoy::t_integer", "").
+using("enjoy::method", "enjoy::specialize", "enjoy::t_integer", "enjoy::t_object").
 define("my_method", function (method, specialize, t_integer) {
     
-    var my_method = method(console.log.bind(console, "Default implementation."));
+    var my_method = method(function () {
+        console.log("Default implementation.");
+    });
     
-    specialize(my_method, t_integer, t_integer, console.log.bind(console, "integer, integer"));
-    specialize(my_method, 0.5, t_integer, console.log.bind(console, "value 0.5, integer"));
+    specialize(my_method, t_integer, t_integer, function (n1, n2) {
+        console.log("integer, integer:", n1, n2);
+    });
+    
+    specialize(my_method, 0.5, t_integer, function (n1, n2) {
+        console.log("0.5, integer:", n1, n2);
+    });
     
     return my_method;
     
