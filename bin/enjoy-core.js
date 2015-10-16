@@ -56,6 +56,10 @@
         return is_object(a) && a.$__type__ === "type";
     }
     
+    function is_derivable (a) {
+        return is_object(a) && "$__children__" in a && Array.isArray(a.$__children__);
+    }
+    
     function valid (data, schema) {
         
         var key;
@@ -130,22 +134,31 @@
         
         Object.defineProperty(obj, "$__type__", {value: "type"});
         Object.defineProperty(obj, "toString", {value: function () { return "[object Type]"; }});
-        Object.defineProperty(obj, "$__children__", {value: []});
         Object.defineProperty(obj, "$__checker__", {value: checker});
+        make_derivable(obj);
         
         Object.freeze(obj);
         
         return obj;
     }
     
-    function derive (child, parent) {
+    function make_derivable (obj) {
         
-        if (!is_type(child)) {
-            throw new TypeError("Child is not a type in call to derive(child, parent).");
+        if (!is_object(obj) || !Object.isExtensible(obj)) {
+            throw new TypeError("Argument 'obj' is not derivable in call to make_derivable(obj).");
         }
         
-        if (!is_type(parent)) {
-            throw new TypeError("Parent is not a type in call to derive(child, parent).");
+        Object.defineProperty(obj, "$__children__", {value: []});
+    }
+    
+    function derive (child, parent) {
+        
+        if (!is_derivable(child)) {
+            make_derivable(child);
+        }
+        
+        if (!is_derivable(parent)) {
+            make_derivable(parent);
         }
         
         if (descendant_of(child, parent)) {
@@ -157,12 +170,12 @@
     
     function descendant_of (a, b) {
         
-        if (!is_type(a)) {
-            throw new TypeError("Parameter 'a' must be a type.");
+        if (!is_derivable(a)) {
+            throw new TypeError("Parameter 'a' must be derivable.");
         }
         
-        if (!is_type(b)) {
-            throw new TypeError("Parameter 'b' must be a type.");
+        if (!is_derivable(b)) {
+            throw new TypeError("Parameter 'b' must be derivable.");
         }
         
         return some(b.$__children__, function (c) {
@@ -172,7 +185,7 @@
     
     function is_a (a, t) {
         
-        if (!is_type(t)) {
+        if (!is_derivable(t)) {
             
             if (typeof t !== "function") {
                 return false;
@@ -181,8 +194,12 @@
             return a instanceof t;
         }
         
-        if (is_type(a) && descendant_of(a, t)) {
+        if (is_derivable(a) && descendant_of(a, t)) {
             return true;
+        }
+        
+        if (!is_type(t)) {
+            return false;
         }
         
         if (t.$__checker__(a)) {
@@ -230,6 +247,7 @@
     
     Object.defineProperty(out, "type", {value: type});
     Object.defineProperty(out, "derive", {value: derive});
+    Object.defineProperty(out, "make_derivable", {value: make_derivable});
     Object.defineProperty(out, "valid", {value: valid});
     Object.defineProperty(out, "validator", {value: validator});
     
@@ -246,6 +264,7 @@
     Object.defineProperty(out, "is_function", {value: is_function});
     Object.defineProperty(out, "is_primitive", {value: is_primitive});
     Object.defineProperty(out, "is_type", {value: is_type});
+    Object.defineProperty(out, "is_derivable", {value: is_derivable});
     
     Object.defineProperty(out, "t_primitive", {value: t_primitive});
     Object.defineProperty(out, "t_composite", {value: t_composite});

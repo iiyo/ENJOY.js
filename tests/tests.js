@@ -165,4 +165,11 @@
     e.p_each([1, 2, 3], console.log.bind(console, "p_each for array:"));
     e.p_each(my_element, console.log.bind(console, "p_each for DOMElement:"));
     
+    var some_object = {foo: "bar"};
+    var some_other_object = {bar: "baz"};
+    
+    e.derive(some_other_object, some_object);
+    
+    console.log("is_a(some_other_object, some_object):", e.is_a(some_other_object, some_object));
+    
 }());

@@ -88,6 +88,10 @@
         <span class="hljs-keyword">return</span> is_object(a) &amp;&amp; a.$__type__ === <span class="hljs-string">"type"</span>;
     }
     
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">is_derivable</span> (<span class="hljs-params">a</span>) </span>{
+        <span class="hljs-keyword">return</span> is_object(a) &amp;&amp; <span class="hljs-string">"$__children__"</span> <span class="hljs-keyword">in</span> a &amp;&amp; <span class="hljs-built_in">Array</span>.isArray(a.$__children__);
+    }
+    
     <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">valid</span> (<span class="hljs-params">data, schema</span>) </span>{
         
         <span class="hljs-keyword">var</span> key;
@@ -162,22 +166,31 @@
         
         <span class="hljs-built_in">Object</span>.defineProperty(obj, <span class="hljs-string">"$__type__"</span>, {value: <span class="hljs-string">"type"</span>});
         <span class="hljs-built_in">Object</span>.defineProperty(obj, <span class="hljs-string">"toString"</span>, {value: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{ <span class="hljs-keyword">return</span> <span class="hljs-string">"[object Type]"</span>; }});
-        <span class="hljs-built_in">Object</span>.defineProperty(obj, <span class="hljs-string">"$__children__"</span>, {value: []});
         <span class="hljs-built_in">Object</span>.defineProperty(obj, <span class="hljs-string">"$__checker__"</span>, {value: checker});
+        make_derivable(obj);
         
         <span class="hljs-built_in">Object</span>.freeze(obj);
         
         <span class="hljs-keyword">return</span> obj;
     }
     
-    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">derive</span> (<span class="hljs-params">child, parent</span>) </span>{
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">make_derivable</span> (<span class="hljs-params">obj</span>) </span>{
         
-        <span class="hljs-keyword">if</span> (!is_type(child)) {
-            <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">TypeError</span>(<span class="hljs-string">"Child is not a type in call to derive(child, parent)."</span>);
+        <span class="hljs-keyword">if</span> (!is_object(obj) || !<span class="hljs-built_in">Object</span>.isExtensible(obj)) {
+            <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">TypeError</span>(<span class="hljs-string">"Argument 'obj' is not derivable in call to make_derivable(obj)."</span>);
         }
         
-        <span class="hljs-keyword">if</span> (!is_type(parent)) {
-            <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">TypeError</span>(<span class="hljs-string">"Parent is not a type in call to derive(child, parent)."</span>);
+        <span class="hljs-built_in">Object</span>.defineProperty(obj, <span class="hljs-string">"$__children__"</span>, {value: []});
+    }
+    
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">derive</span> (<span class="hljs-params">child, parent</span>) </span>{
+        
+        <span class="hljs-keyword">if</span> (!is_derivable(child)) {
+            make_derivable(child);
+        }
+        
+        <span class="hljs-keyword">if</span> (!is_derivable(parent)) {
+            make_derivable(parent);
         }
         
         <span class="hljs-keyword">if</span> (descendant_of(child, parent)) {
@@ -189,12 +202,12 @@
     
     <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">descendant_of</span> (<span class="hljs-params">a, b</span>) </span>{
         
-        <span class="hljs-keyword">if</span> (!is_type(a)) {
-            <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">TypeError</span>(<span class="hljs-string">"Parameter 'a' must be a type."</span>);
+        <span class="hljs-keyword">if</span> (!is_derivable(a)) {
+            <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">TypeError</span>(<span class="hljs-string">"Parameter 'a' must be derivable."</span>);
         }
         
-        <span class="hljs-keyword">if</span> (!is_type(b)) {
-            <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">TypeError</span>(<span class="hljs-string">"Parameter 'b' must be a type."</span>);
+        <span class="hljs-keyword">if</span> (!is_derivable(b)) {
+            <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">TypeError</span>(<span class="hljs-string">"Parameter 'b' must be derivable."</span>);
         }
         
         <span class="hljs-keyword">return</span> some(b.$__children__, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">c</span>) </span>{
@@ -204,7 +217,7 @@
     
     <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">is_a</span> (<span class="hljs-params">a, t</span>) </span>{
         
-        <span class="hljs-keyword">if</span> (!is_type(t)) {
+        <span class="hljs-keyword">if</span> (!is_derivable(t)) {
             
             <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span> t !== <span class="hljs-string">"function"</span>) {
                 <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;
@@ -213,8 +226,12 @@
             <span class="hljs-keyword">return</span> a <span class="hljs-keyword">instanceof</span> t;
         }
         
-        <span class="hljs-keyword">if</span> (is_type(a) &amp;&amp; descendant_of(a, t)) {
+        <span class="hljs-keyword">if</span> (is_derivable(a) &amp;&amp; descendant_of(a, t)) {
             <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;
+        }
+        
+        <span class="hljs-keyword">if</span> (!is_type(t)) {
+            <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;
         }
         
         <span class="hljs-keyword">if</span> (t.$__checker__(a)) {
@@ -262,6 +279,7 @@
     
     <span class="hljs-built_in">Object</span>.defineProperty(out, <span class="hljs-string">"type"</span>, {value: type});
     <span class="hljs-built_in">Object</span>.defineProperty(out, <span class="hljs-string">"derive"</span>, {value: derive});
+    <span class="hljs-built_in">Object</span>.defineProperty(out, <span class="hljs-string">"make_derivable"</span>, {value: make_derivable});
     <span class="hljs-built_in">Object</span>.defineProperty(out, <span class="hljs-string">"valid"</span>, {value: valid});
     <span class="hljs-built_in">Object</span>.defineProperty(out, <span class="hljs-string">"validator"</span>, {value: validator});
     
@@ -278,6 +296,7 @@
     <span class="hljs-built_in">Object</span>.defineProperty(out, <span class="hljs-string">"is_function"</span>, {value: is_function});
     <span class="hljs-built_in">Object</span>.defineProperty(out, <span class="hljs-string">"is_primitive"</span>, {value: is_primitive});
     <span class="hljs-built_in">Object</span>.defineProperty(out, <span class="hljs-string">"is_type"</span>, {value: is_type});
+    <span class="hljs-built_in">Object</span>.defineProperty(out, <span class="hljs-string">"is_derivable"</span>, {value: is_derivable});
     
     <span class="hljs-built_in">Object</span>.defineProperty(out, <span class="hljs-string">"t_primitive"</span>, {value: t_primitive});
     <span class="hljs-built_in">Object</span>.defineProperty(out, <span class="hljs-string">"t_composite"</span>, {value: t_composite});
