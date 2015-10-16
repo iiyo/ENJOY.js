@@ -2,6 +2,7 @@
 
 var fs, scriptsFilePath, template;
 var minify = require("minify");
+var exec = require("child_process").exec;
 
 fs = require('fs');
 scriptsFilePath = 'scripts.json';
@@ -61,6 +62,12 @@ function concatJsFiles (files) {
     
     writeFileFn(coreFile, "enjoy-core");
     writeFileFn(fullFile, "enjoy");
+    
+    exec("docco -o docs/ bin/enjoy-core.js", function () {
+        exec("mv docs/enjoy-core.html docs/index.html", function () {
+            console.log("Documentation created.");
+        });
+    });
 };
 
 function writeFileFn (contents, fileNameBase) {

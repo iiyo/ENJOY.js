@@ -143,7 +143,10 @@
         console.log("object, integer:", o1, n1);
     });
     
+    my_method(5, 3);
     my_method({}, 12);
     my_method({}, 1.2);
+    my_method(0.6, 2);
+    my_method(0.5, 2);
     
 }());

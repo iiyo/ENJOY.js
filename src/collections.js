@@ -148,8 +148,23 @@
     
     out.privatize = privatize;
     
-    
+
+//
+// ### Function reduce(collection, fn[, value])
+//
+//     collection -> (any -> any -> string|number -> collection) -> any -> any
+//
+// Reduces a collection to a single value by applying every item in the collection
+// along with the item's key, the previously reduced value (or the start value)
+// and the collection itself to a reducer function `fn`.
+//
+
     function reduce (collection, fn, value) {
+        
+        // If the collection is an array, the native .reduce() method is used for performance:
+        if (Array.isArray(collection)) {
+            return collection.reduce(fn, value);
+        }
         
         each(collection, function (item, key) {
             value = fn(value, item, key, collection);
@@ -167,26 +182,80 @@
     
     out.tail = tail;
     
-    
-    function take (obj, key) {
-        return obj[key];
+
+//
+// ### Function at(collection, key)
+//
+//     collection -> string | number -> any
+//
+// Returns a collection's value at `key`.
+//
+
+    function at (collection, key) {
+        return collection[key];
     }
     
-    out.take = take;
+    Object.defineProperty(out, "at", {value: at});
     
-    
-    function taker (key) {
-        return partial(take, undefined, key);
+
+//
+// ### Function picker(key)
+//
+//     string | number -> (collection -> any)
+//
+// Binds `at` to a `key`.
+//
+
+    function picker (key) {
+        return partial(at, undefined, key);
     }
     
-    out.taker = taker;
+    Object.defineProperty(out, "picker", {value: picker});
     
+
+//
+// ### Function put(collection, key, value)
+//
+//     collection -> string -> any -> undefined
+//
+// Puts a `value` into a collection at `key`.
+//
+
+    function put (collection, key, value) {
+        collection[key] = value;
+    }
     
+    Object.defineProperty(out, "put", {value: put});
+    
+
+//
+// ### Function putter(key)
+//
+//     string -> (collection -> value -> undefined)
+//
+// Binds `put` to a key.
+//
+
+    function putter (key) {
+        return partial(put, undefined, key, undefined);
+    }
+    
+    Object.defineProperty(out, "putter", {value: putter});
+    
+
+//
+// ### Function values(collection)
+//
+//     collection -> [any]
+//
+// Extracts all values from a collection such as `array` or `object`.
+//
+
     function values (collection) {
         return map(collection, function (item) {
             return item;
         });
     }
     
-    out.values = values;
+    Object.defineProperty(out, "values", {value: values});
     
