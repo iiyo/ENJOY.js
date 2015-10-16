@@ -3,7 +3,8 @@
 (function () {
     
     var out = {
-        hidden_properties: []
+        hidden_properties: [],
+        poly: {}
     };
     
     {{content}}

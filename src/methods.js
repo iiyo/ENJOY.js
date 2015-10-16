@@ -18,12 +18,8 @@
                 
                 var dispatcher = fn.$__dispatchers__[i] || id;
                 
-                //console.log(dispatcher);
-                
                 return call(dispatcher, arg);
             });
-            
-            //console.log("dispatchValues:", dispatchValues);
             
             some(fn.$__implementations__, function (impl) {
                 
@@ -41,7 +37,6 @@
                     var argumentOrderModificator = dispatchValues.length - i;
                     
                     if (i >= impl.$__comparators__.length) {
-                        console.log("No comparator for argument found. Assuming match, scores 0.");
                         return true;
                     }
                     
@@ -74,10 +69,7 @@
                     implementation = impl.$__implementation__;
                 }
                 
-                //console.log("currentScore:", currentScore);
-                
                 if (predicateMatches > 0 && predicateMatches === dispatchValues.length) {
-                    //console.log("Found full predicate match. Stopping implementation search.");
                     return true;
                 }
                 

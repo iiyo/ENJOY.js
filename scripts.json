@@ -6,6 +6,7 @@
         "enjoy.functions": "src/functions.js",
         "enjoy.iteration": "src/iteration.js",
         "enjoy.methods": "src/methods.js",
-        "enjoy.misc": "src/misc.js"
+        "enjoy.misc": "src/misc.js",
+        "enjoy.poly.collections": "src/poly-collections.js"
     }
 }

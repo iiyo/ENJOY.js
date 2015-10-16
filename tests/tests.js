@@ -149,4 +149,20 @@
     my_method(0.6, 2);
     my_method(0.5, 2);
     
+    function is_dom_element (thing) {
+        return e.is_object(thing) && thing.nodeType === 1;
+    }
+    
+    e.specialize(e.p_each, is_dom_element, function (element, fn) {
+        [].forEach.call(element.children, fn);
+    });
+    
+    var my_element = document.createElement("div");
+    var my_child_element = document.createElement("p");
+    
+    my_element.appendChild(my_child_element);
+    
+    e.p_each([1, 2, 3], console.log.bind(console, "p_each for array:"));
+    e.p_each(my_element, console.log.bind(console, "p_each for DOMElement:"));
+    
 }());

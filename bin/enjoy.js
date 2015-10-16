@@ -415,7 +415,8 @@ using.ajax = (function () {
 (function () {
     
     var out = {
-        hidden_properties: []
+        hidden_properties: [],
+        poly: {}
     };
     
         
@@ -1219,12 +1220,8 @@ using.ajax = (function () {
                 
                 var dispatcher = fn.$__dispatchers__[i] || id;
                 
-                //console.log(dispatcher);
-                
                 return call(dispatcher, arg);
             });
-            
-            //console.log("dispatchValues:", dispatchValues);
             
             some(fn.$__implementations__, function (impl) {
                 
@@ -1242,7 +1239,6 @@ using.ajax = (function () {
                     var argumentOrderModificator = dispatchValues.length - i;
                     
                     if (i >= impl.$__comparators__.length) {
-                        console.log("No comparator for argument found. Assuming match, scores 0.");
                         return true;
                     }
                     
@@ -1275,10 +1271,7 @@ using.ajax = (function () {
                     implementation = impl.$__implementation__;
                 }
                 
-                //console.log("currentScore:", currentScore);
-                
                 if (predicateMatches > 0 && predicateMatches === dispatchValues.length) {
-                    //console.log("Found full predicate match. Stopping implementation search.");
                     return true;
                 }
                 
@@ -1394,7 +1387,25 @@ using.ajax = (function () {
     
     out.id = id;
     
-
+//
+// ## Polymorphic versions (methods) of ENJOY collection functions
+//
+    
+    var p_each = method(each);
+    
+    Object.defineProperty(out, "p_each", {value: p_each});
+    Object.defineProperty(out.poly, "each", {value: p_each});
+    
+    var p_some = method(some);
+    
+    Object.defineProperty(out, "p_some", {value: p_some});
+    Object.defineProperty(out.poly, "some", {value: p_some});
+    
+    var p_every = method(every);
+    
+    Object.defineProperty(out, "p_every", {value: p_every});
+    Object.defineProperty(out.poly, "every", {value: p_every});
+    
     
     (function () {
         
