@@ -36,9 +36,295 @@
     
     <span class="hljs-keyword">var</span> out = {
         hidden_properties: [],
-        poly: {}
+        poly: {}, <span class="hljs-comment">/* methods for basic functions */</span>
+        core: {} <span class="hljs-comment">/* basic functions */</span>
     };
     
+        
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">apply</span> (<span class="hljs-params">fn, args</span>) </span>{
+        
+        <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span> fn !== <span class="hljs-string">"function"</span>) {
+            <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">TypeError</span>(<span class="hljs-string">"Argument 'fn' must be a function."</span>);
+        }
+        
+        <span class="hljs-keyword">return</span> fn.apply(<span class="hljs-literal">undefined</span>, args);
+    }
+    
+    out.apply = apply;
+    
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">bind</span> (<span class="hljs-params">fn</span>) </span>{
+        
+        <span class="hljs-keyword">var</span> args = [].slice.call(<span class="hljs-built_in">arguments</span>);
+        
+        args.shift();
+        
+        <span class="hljs-keyword">return</span> <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+            
+            <span class="hljs-keyword">var</span> allArgs = args.slice(), i;
+            
+            <span class="hljs-keyword">for</span> (i = <span class="hljs-number">0</span>; i &lt; <span class="hljs-built_in">arguments</span>.length; i += <span class="hljs-number">1</span>) {
+                allArgs.push(<span class="hljs-built_in">arguments</span>[i]);
+            }
+            
+            fn.apply(<span class="hljs-literal">undefined</span>, allArgs);
+        };
+    }
+    
+    out.bind = bind;
+    
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">call</span> (<span class="hljs-params">fn</span>) </span>{
+        
+        <span class="hljs-keyword">var</span> args = [].slice.call(<span class="hljs-built_in">arguments</span>);
+        
+        args.shift();
+        
+        <span class="hljs-keyword">return</span> fn.apply(<span class="hljs-literal">undefined</span>, args);
+    }
+    
+    out.call = call;
+    
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">partial</span> (<span class="hljs-params">fn</span>) </span>{
+        
+        <span class="hljs-keyword">var</span> args = [].slice.call(<span class="hljs-built_in">arguments</span>, <span class="hljs-number">1</span>);
+        
+        <span class="hljs-keyword">return</span> <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+            
+            <span class="hljs-keyword">var</span> callArgs = [].slice.call(<span class="hljs-built_in">arguments</span>);
+            
+            <span class="hljs-keyword">var</span> allArgs = args.map(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">arg, index</span>) </span>{
+                
+                <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span> arg === <span class="hljs-string">"undefined"</span>) {
+                    <span class="hljs-keyword">return</span> callArgs.shift();
+                }
+                
+                <span class="hljs-keyword">return</span> arg;
+            });
+            
+            <span class="hljs-keyword">if</span> (callArgs.length) {
+                callArgs.forEach(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">arg</span>) </span>{
+                    allArgs.push(arg);
+                });
+            }
+            
+            <span class="hljs-keyword">return</span> apply(fn, allArgs);
+        };
+    }
+    
+    out.partial = partial;
+    
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">pipe</span> (<span class="hljs-params">value</span>) </span>{
+        
+        each(<span class="hljs-built_in">arguments</span>, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">fn, index</span>) </span>{
+            <span class="hljs-keyword">if</span> (index &gt; <span class="hljs-number">0</span>) {
+                value = fn(value);
+            }
+        });
+        
+        <span class="hljs-keyword">return</span> value;
+    }
+    
+    out.pipe = pipe;
+    
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">piped</span> (<span class="hljs-params"></span>) </span>{
+        
+        <span class="hljs-keyword">var</span> functions = [].slice.call(<span class="hljs-built_in">arguments</span>);
+        
+        <span class="hljs-keyword">return</span> <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">value</span>) </span>{
+            
+            <span class="hljs-keyword">var</span> args = functions.slice();
+            
+            args.unshift(value);
+            
+            <span class="hljs-keyword">return</span> apply(pipe, args);
+        };
+    };
+    
+    out.piped = piped;
+        
+    <span class="hljs-keyword">var</span> METHOD_PRECEDENCE_SCORE_FN = <span class="hljs-number">10</span>;
+    <span class="hljs-keyword">var</span> METHOD_PRECEDENCE_SCORE_ID = <span class="hljs-number">8</span>;
+    <span class="hljs-keyword">var</span> METHOD_PRECEDENCE_SCORE_EQ = <span class="hljs-number">6</span>;
+    <span class="hljs-keyword">var</span> METHOD_PRECEDENCE_SCORE_IS_A = <span class="hljs-number">4</span>;
+    
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">method</span> (<span class="hljs-params">defaultFn</span>) </span>{
+        
+        <span class="hljs-keyword">var</span> dispatchers = [].slice.call(<span class="hljs-built_in">arguments</span>, <span class="hljs-number">1</span>);
+        
+        <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">fn</span> (<span class="hljs-params"></span>) </span>{
+            
+            <span class="hljs-keyword">var</span> argsLength = <span class="hljs-built_in">arguments</span>.length;
+            <span class="hljs-keyword">var</span> implementation = fn.$__default__;
+            <span class="hljs-keyword">var</span> highestScore = <span class="hljs-number">0</span>;
+            
+            <span class="hljs-keyword">var</span> dispatchValues = [].map.call(<span class="hljs-built_in">arguments</span>, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">arg, i</span>) </span>{
+                
+                <span class="hljs-keyword">var</span> dispatcher = fn.$__dispatchers__[i] || id;
+                
+                <span class="hljs-keyword">return</span> call(dispatcher, arg);
+            });
+            
+            fn.$__implementations__.some(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">impl</span>) </span>{
+                
+                <span class="hljs-keyword">var</span> currentScore = <span class="hljs-number">0</span>;
+                <span class="hljs-keyword">var</span> predicateMatches = <span class="hljs-number">0</span>;
+                
+                <span class="hljs-keyword">if</span> (argsLength &lt; impl.$__comparators__.length) {
+                    <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;
+                }
+                
+                <span class="hljs-keyword">var</span> match = dispatchValues.every(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">dispatchValue, i</span>) </span>{
+                    
+                    <span class="hljs-keyword">var</span> comparator = impl.$__comparators__[i];
+                    <span class="hljs-keyword">var</span> comparatorIsFunction = <span class="hljs-keyword">typeof</span> comparator === <span class="hljs-string">"function"</span>;
+                    <span class="hljs-keyword">var</span> argumentOrderModificator = dispatchValues.length - i;
+                    
+                    <span class="hljs-keyword">if</span> (i &gt;= impl.$__comparators__.length) {
+                        <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;
+                    }
+                    
+                    <span class="hljs-keyword">if</span> (comparatorIsFunction &amp;&amp; comparator(dispatchValue)) {
+                        predicateMatches += <span class="hljs-number">1</span>;
+                        currentScore += METHOD_PRECEDENCE_SCORE_FN * argumentOrderModificator;
+                        <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;
+                    }
+                    
+                    <span class="hljs-keyword">if</span> (identical(dispatchValue, comparator)) {
+                        currentScore += METHOD_PRECEDENCE_SCORE_ID * argumentOrderModificator;
+                        <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;
+                    }
+                    
+                    <span class="hljs-keyword">if</span> (equal(dispatchValue, comparator)) {
+                        currentScore += METHOD_PRECEDENCE_SCORE_EQ * argumentOrderModificator;
+                        <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;
+                    }
+                    
+                    <span class="hljs-keyword">if</span> (is_a(dispatchValue, comparator)) {
+                        currentScore += METHOD_PRECEDENCE_SCORE_IS_A * argumentOrderModificator;
+                        <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;
+                    }
+                    
+                    <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;
+                });
+                
+                <span class="hljs-keyword">if</span> (match &amp;&amp; currentScore &gt; highestScore) {
+                    highestScore = currentScore;
+                    implementation = impl.$__implementation__;
+                }
+                
+                <span class="hljs-keyword">if</span> (predicateMatches &gt; <span class="hljs-number">0</span> &amp;&amp; predicateMatches === dispatchValues.length) {
+                    <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;
+                }
+                
+                <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;
+            });
+            
+            <span class="hljs-keyword">return</span> apply(implementation, <span class="hljs-built_in">arguments</span>);
+        }
+        
+        <span class="hljs-keyword">if</span> (defaultFn &amp;&amp; <span class="hljs-keyword">typeof</span> defaultFn !== <span class="hljs-string">"function"</span>) {
+            <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">TypeError</span>(<span class="hljs-string">"Argument 1 must be a function."</span>);
+        }
+        
+        <span class="hljs-built_in">Object</span>.defineProperty(fn, <span class="hljs-string">"$__default__"</span>, {
+            value: defaultFn || <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+                <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">TypeError</span>(<span class="hljs-string">"No matching implementation found for method arguments."</span>);
+            },
+            writable: <span class="hljs-literal">true</span>
+        });
+        
+        <span class="hljs-built_in">Object</span>.defineProperty(fn, <span class="hljs-string">"$__dispatchers__"</span>, {
+            value: [],
+            writable: <span class="hljs-literal">true</span>
+        });
+        
+        <span class="hljs-built_in">Object</span>.defineProperty(fn, <span class="hljs-string">"$__implementations__"</span>, {
+            value: [],
+            writable: <span class="hljs-literal">true</span>
+        });
+        
+        <span class="hljs-built_in">Object</span>.defineProperty(fn, <span class="hljs-string">"$__type__"</span>, {value: <span class="hljs-string">"method"</span>});
+        
+        dispatchers.unshift(fn);
+        
+        apply(dispatch, dispatchers);
+        
+        <span class="hljs-keyword">return</span> fn;
+    }
+    
+    <span class="hljs-built_in">Object</span>.defineProperty(out, <span class="hljs-string">"method"</span>, {value: method});
+    
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">dispatch</span> (<span class="hljs-params">method</span>) </span>{
+        
+        <span class="hljs-keyword">var</span> dispatchers = [].slice.call(<span class="hljs-built_in">arguments</span>, <span class="hljs-number">1</span>);
+        
+        dispatchers.forEach(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">dispatcher, index</span>) </span>{
+            
+            <span class="hljs-keyword">var</span> dtype = <span class="hljs-keyword">typeof</span> dispatcher;
+            
+            <span class="hljs-keyword">if</span> (dtype !== <span class="hljs-string">"function"</span> &amp;&amp; (dtype === <span class="hljs-string">"string"</span> || dtype === <span class="hljs-string">"number"</span>)) {
+                dispatcher = partial(at, <span class="hljs-literal">undefined</span>, dispatcher);
+            }
+            <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (dtype !== <span class="hljs-string">"function"</span>) {
+                <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">TypeError</span>(<span class="hljs-string">"Dispatchers must be strings, numbers or functions."</span>);
+            }
+            
+            dispatchers[index] = dispatcher;
+        });
+        
+        method.$__dispatchers__ = dispatchers;
+    }
+    
+    <span class="hljs-built_in">Object</span>.defineProperty(out, <span class="hljs-string">"dispatch"</span>, {value: dispatch});
+        
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">specialize</span> (<span class="hljs-params"></span>) </span>{
+        
+        <span class="hljs-keyword">var</span> args = [].slice.call(<span class="hljs-built_in">arguments</span>);
+        <span class="hljs-keyword">var</span> method = args.shift();
+        <span class="hljs-keyword">var</span> implementation = args.pop();
+        <span class="hljs-keyword">var</span> comparators = args.slice();
+        <span class="hljs-keyword">var</span> specialization, old;
+        
+        method.$__implementations__.some(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">impl</span>) </span>{
+            
+            <span class="hljs-keyword">var</span> matchesEvery = impl.$__comparators__.every(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">comp, i</span>) </span>{
+                <span class="hljs-keyword">return</span> equal(comp, comparators[i]);
+            });
+            
+            <span class="hljs-keyword">if</span> (matchesEvery) {
+                old = impl;
+                <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;
+            }
+            
+            <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;
+        });
+        
+        <span class="hljs-keyword">if</span> (old) {
+            old.$__implementation__ = implementation;
+        }
+        <span class="hljs-keyword">else</span> {
+            
+            specialization = {};
+            
+            <span class="hljs-built_in">Object</span>.defineProperty(specialization, <span class="hljs-string">"$__comparators__"</span>, {
+                value: comparators
+            });
+            
+            <span class="hljs-built_in">Object</span>.defineProperty(specialization, <span class="hljs-string">"$__implementation__"</span>, {
+                value: implementation,
+                writable: <span class="hljs-literal">true</span>
+            });
+            
+            method.$__implementations__.push(specialization);
+        }
+    }
+    
+    out.hidden_properties.push(<span class="hljs-string">"$__comparators__"</span>);
+    out.hidden_properties.push(<span class="hljs-string">"$__default__"</span>);
+    out.hidden_properties.push(<span class="hljs-string">"$__dispatchers__"</span>);
+    out.hidden_properties.push(<span class="hljs-string">"$__implementation__"</span>);
+    out.hidden_properties.push(<span class="hljs-string">"$__implementations__"</span>);
+    
+    <span class="hljs-built_in">Object</span>.defineProperty(out, <span class="hljs-string">"specialize"</span>, {value: specialize});
         
     <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">is_null</span> (<span class="hljs-params">a</span>) </span>{
         <span class="hljs-keyword">return</span> a === <span class="hljs-literal">null</span>;
@@ -90,6 +376,10 @@
     
     <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">is_derivable</span> (<span class="hljs-params">a</span>) </span>{
         <span class="hljs-keyword">return</span> is_object(a) &amp;&amp; <span class="hljs-string">"$__children__"</span> <span class="hljs-keyword">in</span> a &amp;&amp; <span class="hljs-built_in">Array</span>.isArray(a.$__children__);
+    }
+    
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">is_method</span> (<span class="hljs-params">a</span>) </span>{
+        <span class="hljs-keyword">return</span> is_object(a) &amp;&amp; a.$__type__ === <span class="hljs-string">"method"</span>;
     }
     
     <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">valid</span> (<span class="hljs-params">data, schema</span>) </span>{
@@ -210,8 +500,8 @@
             <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">TypeError</span>(<span class="hljs-string">"Parameter 'b' must be derivable."</span>);
         }
         
-        <span class="hljs-keyword">return</span> some(b.$__children__, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">c</span>) </span>{
-            <span class="hljs-keyword">return</span> (c === a ? <span class="hljs-literal">true</span> : some(c.$__children__, bind(descendant_of, a)));
+        <span class="hljs-keyword">return</span> b.$__children__.some(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">c</span>) </span>{
+            <span class="hljs-keyword">return</span> (c === a ? <span class="hljs-literal">true</span> : c.$__children__.some(bind(descendant_of, a)));
         });
     }
     
@@ -238,7 +528,7 @@
             <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;
         }
         
-        <span class="hljs-keyword">return</span> some(t.$__children__, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">child</span>) </span>{
+        <span class="hljs-keyword">return</span> t.$__children__.some(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">child</span>) </span>{
             <span class="hljs-keyword">return</span> is_a(a, child);
         });
     }
@@ -297,6 +587,7 @@
     <span class="hljs-built_in">Object</span>.defineProperty(out, <span class="hljs-string">"is_primitive"</span>, {value: is_primitive});
     <span class="hljs-built_in">Object</span>.defineProperty(out, <span class="hljs-string">"is_type"</span>, {value: is_type});
     <span class="hljs-built_in">Object</span>.defineProperty(out, <span class="hljs-string">"is_derivable"</span>, {value: is_derivable});
+    <span class="hljs-built_in">Object</span>.defineProperty(out, <span class="hljs-string">"is_method"</span>, {value: is_method});
     
     <span class="hljs-built_in">Object</span>.defineProperty(out, <span class="hljs-string">"t_primitive"</span>, {value: t_primitive});
     <span class="hljs-built_in">Object</span>.defineProperty(out, <span class="hljs-string">"t_composite"</span>, {value: t_composite});
@@ -407,13 +698,25 @@ values of a property of the objects contained wihtin the original array.</p>
     out.head = head;
     
     
-    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">keys</span> (<span class="hljs-params">collection</span>) </span>{
-        <span class="hljs-keyword">return</span> map(collection, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">item, key</span>) </span>{
-            <span class="hljs-keyword">return</span> key;
-        });
-    }
+    <span class="hljs-keyword">var</span> keys = method(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">collection</span>) </span>{
+        
+        <span class="hljs-keyword">var</span> result = [];
+        
+        <span class="hljs-keyword">if</span> (<span class="hljs-built_in">Array</span>.isArray(collection)) {
+            collection.forEach(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">item, key</span>) </span>{
+                result.push(key);
+            });
+        }
+        <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span> collection === <span class="hljs-string">"object"</span>) {
+            <span class="hljs-keyword">for</span> (key <span class="hljs-keyword">in</span> collection) {
+                result.push(key);
+            }
+        }
+        
+        <span class="hljs-keyword">return</span> result;
+    });
     
-    out.keys = keys;
+    <span class="hljs-built_in">Object</span>.defineProperty(out, <span class="hljs-string">"keys"</span>, {value: keys});
     
     
     <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">map</span> (<span class="hljs-params">collection, fn</span>) </span>{
@@ -548,11 +851,11 @@ and the collection itself to a reducer function <code>fn</code>.</p>
             </div>
             
             <div class="content"><div class='highlight'><pre>
-    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">at</span> (<span class="hljs-params">collection, key</span>) </span>{
+    <span class="hljs-keyword">var</span> at = method(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">collection, key</span>) </span>{
         <span class="hljs-keyword">return</span> collection[key];
-    }
+    });
     
-    <span class="hljs-built_in">Object</span>.defineProperty(out, <span class="hljs-string">"at"</span>, {value: at});</pre></div></div>
+    <span class="hljs-built_in">Object</span>.defineProperty(out.core, <span class="hljs-string">"at"</span>, {value: at});</pre></div></div>
             
         </li>
         
@@ -574,6 +877,7 @@ and the collection itself to a reducer function <code>fn</code>.</p>
         <span class="hljs-keyword">return</span> partial(at, <span class="hljs-literal">undefined</span>, key);
     }
     
+    <span class="hljs-built_in">Object</span>.defineProperty(out.core, <span class="hljs-string">"picker"</span>, {value: picker});
     <span class="hljs-built_in">Object</span>.defineProperty(out, <span class="hljs-string">"picker"</span>, {value: picker});</pre></div></div>
             
         </li>
@@ -592,11 +896,12 @@ and the collection itself to a reducer function <code>fn</code>.</p>
             </div>
             
             <div class="content"><div class='highlight'><pre>
-    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">put</span> (<span class="hljs-params">collection, key, value</span>) </span>{
+    <span class="hljs-keyword">var</span> put = method(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">collection, key, value</span>) </span>{
         collection[key] = value;
-    }
+        <span class="hljs-keyword">return</span> collection;
+    });
     
-    <span class="hljs-built_in">Object</span>.defineProperty(out, <span class="hljs-string">"put"</span>, {value: put});</pre></div></div>
+    <span class="hljs-built_in">Object</span>.defineProperty(out.core, <span class="hljs-string">"put"</span>, {value: put});</pre></div></div>
             
         </li>
         
@@ -618,6 +923,7 @@ and the collection itself to a reducer function <code>fn</code>.</p>
         <span class="hljs-keyword">return</span> partial(put, <span class="hljs-literal">undefined</span>, key, <span class="hljs-literal">undefined</span>);
     }
     
+    <span class="hljs-built_in">Object</span>.defineProperty(out.core, <span class="hljs-string">"putter"</span>, {value: putter});
     <span class="hljs-built_in">Object</span>.defineProperty(out, <span class="hljs-string">"putter"</span>, {value: putter});</pre></div></div>
             
         </li>
@@ -642,6 +948,7 @@ and the collection itself to a reducer function <code>fn</code>.</p>
         });
     }
     
+    <span class="hljs-built_in">Object</span>.defineProperty(out.core, <span class="hljs-string">"values"</span>, {value: values});
     <span class="hljs-built_in">Object</span>.defineProperty(out, <span class="hljs-string">"values"</span>, {value: values});
         
     <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">identical</span> (<span class="hljs-params">a, b</span>) </span>{
@@ -721,132 +1028,20 @@ and the collection itself to a reducer function <code>fn</code>.</p>
     out.equal = equal;
     
     
-    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">apply</span> (<span class="hljs-params">fn, args</span>) </span>{
+    <span class="hljs-keyword">var</span> each = method(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">collection, fn</span>) </span>{
         
-        <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span> fn !== <span class="hljs-string">"function"</span>) {
-            <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">TypeError</span>(<span class="hljs-string">"Argument 'fn' must be a function."</span>);
+        <span class="hljs-keyword">var</span> index, length, ids = keys(collection);
+        
+        <span class="hljs-keyword">for</span> (index = <span class="hljs-number">0</span>, length = ids.length; index &lt; length; index += <span class="hljs-number">1</span>) {
+            fn(at(collection, ids[index]), ids[index], collection);
         }
-        
-        <span class="hljs-keyword">return</span> fn.apply(<span class="hljs-literal">undefined</span>, args);
-    }
+    });
     
-    out.apply = apply;
+    specialize(each, is_array, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">collection, fn</span>) </span>{
+        <span class="hljs-keyword">return</span> collection.forEach(fn);
+    });
     
-    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">bind</span> (<span class="hljs-params">fn</span>) </span>{
-        
-        <span class="hljs-keyword">var</span> args = [].slice.call(<span class="hljs-built_in">arguments</span>);
-        
-        args.shift();
-        
-        <span class="hljs-keyword">return</span> <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
-            
-            <span class="hljs-keyword">var</span> allArgs = args.slice(), i;
-            
-            <span class="hljs-keyword">for</span> (i = <span class="hljs-number">0</span>; i &lt; <span class="hljs-built_in">arguments</span>.length; i += <span class="hljs-number">1</span>) {
-                allArgs.push(<span class="hljs-built_in">arguments</span>[i]);
-            }
-            
-            fn.apply(<span class="hljs-literal">undefined</span>, allArgs);
-        };
-    }
-    
-    out.bind = bind;
-    
-    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">call</span> (<span class="hljs-params">fn</span>) </span>{
-        
-        <span class="hljs-keyword">var</span> args = [].slice.call(<span class="hljs-built_in">arguments</span>);
-        
-        args.shift();
-        
-        <span class="hljs-keyword">return</span> fn.apply(<span class="hljs-literal">undefined</span>, args);
-    }
-    
-    out.call = call;
-    
-    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">partial</span> (<span class="hljs-params">fn</span>) </span>{
-        
-        <span class="hljs-keyword">var</span> args = [].slice.call(<span class="hljs-built_in">arguments</span>, <span class="hljs-number">1</span>);
-        
-        <span class="hljs-keyword">return</span> <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
-            
-            <span class="hljs-keyword">var</span> callArgs = [].slice.call(<span class="hljs-built_in">arguments</span>);
-            
-            <span class="hljs-keyword">var</span> allArgs = args.map(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">arg, index</span>) </span>{
-                
-                <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span> arg === <span class="hljs-string">"undefined"</span>) {
-                    <span class="hljs-keyword">return</span> callArgs.shift();
-                }
-                
-                <span class="hljs-keyword">return</span> arg;
-            });
-            
-            <span class="hljs-keyword">if</span> (callArgs.length) {
-                callArgs.forEach(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">arg</span>) </span>{
-                    allArgs.push(arg);
-                });
-            }
-            
-            <span class="hljs-keyword">return</span> apply(fn, allArgs);
-        };
-    }
-    
-    out.partial = partial;
-    
-    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">pipe</span> (<span class="hljs-params">value</span>) </span>{
-        
-        each(<span class="hljs-built_in">arguments</span>, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">fn, index</span>) </span>{
-            <span class="hljs-keyword">if</span> (index &gt; <span class="hljs-number">0</span>) {
-                value = fn(value);
-            }
-        });
-        
-        <span class="hljs-keyword">return</span> value;
-    }
-    
-    out.pipe = pipe;
-    
-    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">piped</span> (<span class="hljs-params"></span>) </span>{
-        
-        <span class="hljs-keyword">var</span> functions = [].slice.call(<span class="hljs-built_in">arguments</span>);
-        
-        <span class="hljs-keyword">return</span> <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">value</span>) </span>{
-            
-            <span class="hljs-keyword">var</span> args = functions.slice();
-            
-            args.unshift(value);
-            
-            <span class="hljs-keyword">return</span> apply(pipe, args);
-        };
-    };
-    
-    out.piped = piped;
-        
-    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">each</span> (<span class="hljs-params">collection, fn</span>) </span>{
-        
-        <span class="hljs-keyword">if</span> (<span class="hljs-built_in">Array</span>.isArray(collection)) {
-            <span class="hljs-keyword">return</span> collection.forEach(fn);
-        }
-        
-        <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span> collection.length === <span class="hljs-string">"number"</span> &amp;&amp; collection.length &gt; <span class="hljs-number">0</span>) {
-            <span class="hljs-keyword">return</span> eachIterable(collection, fn);
-        }
-        
-        <span class="hljs-keyword">return</span> eachObject(collection, fn);
-    }
-    
-    out.each = each;
-    
-    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">eachIterable</span> (<span class="hljs-params">collection, fn</span>) </span>{
-        <span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> index = <span class="hljs-number">0</span>; index &lt; collection.length; index += <span class="hljs-number">1</span>) {
-            fn(collection[index], index, collection);
-        }
-    }
-    
-    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">eachObject</span> (<span class="hljs-params">collection, fn</span>) </span>{
-        <span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> key <span class="hljs-keyword">in</span> collection) {
-            fn(collection[key], key, collection);
-        }
-    }
+    <span class="hljs-built_in">Object</span>.defineProperty(out, <span class="hljs-string">"each"</span>, {value: each});
     
     
     <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">every</span> (<span class="hljs-params">collection, fn</span>) </span>{
@@ -866,14 +1061,14 @@ and the collection itself to a reducer function <code>fn</code>.</p>
         <span class="hljs-keyword">return</span> result;
     }
     
-    out.every = every;
+    <span class="hljs-built_in">Object</span>.defineProperty(out, <span class="hljs-string">"every"</span>, {value: every});
     
     
-    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">some</span> (<span class="hljs-params">collection, fn</span>) </span>{
-        <span class="hljs-keyword">return</span> <span class="hljs-built_in">Array</span>.isArray(collection) ? someArray(collection, fn) : someObject(collection, fn);
-    }
+    <span class="hljs-keyword">var</span> some = method(someObject);
     
-    out.some = some;
+    specialize(some, <span class="hljs-built_in">Array</span>.isArray, someArray);
+    
+    <span class="hljs-built_in">Object</span>.defineProperty(out, <span class="hljs-string">"some"</span>, {value: some});
     
     <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">someArray</span> (<span class="hljs-params">collection, fn</span>) </span>{
         
@@ -893,11 +1088,12 @@ and the collection itself to a reducer function <code>fn</code>.</p>
     
     <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">someObject</span> (<span class="hljs-params">collection, fn</span>) </span>{
         
-        <span class="hljs-keyword">var</span> key, value;
+        <span class="hljs-keyword">var</span> ids = keys(collection), value, i, length, key;
         
-        <span class="hljs-keyword">for</span> (key <span class="hljs-keyword">in</span> collection) {
+        <span class="hljs-keyword">for</span> (i = <span class="hljs-number">0</span>, length = ids.length; i &lt; length; i += <span class="hljs-number">1</span>) {
             
-            value = fn(collection[key], key, collection);
+            key = ids[i];
+            value = fn(at(collection, key), key, collection);
             
             <span class="hljs-keyword">if</span> (value) {
                 <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;
@@ -908,191 +1104,36 @@ and the collection itself to a reducer function <code>fn</code>.</p>
     }
     
     
-    <span class="hljs-keyword">var</span> METHOD_PRECEDENCE_SCORE_FN = <span class="hljs-number">10</span>;
-    <span class="hljs-keyword">var</span> METHOD_PRECEDENCE_SCORE_ID = <span class="hljs-number">8</span>;
-    <span class="hljs-keyword">var</span> METHOD_PRECEDENCE_SCORE_EQ = <span class="hljs-number">6</span>;
-    <span class="hljs-keyword">var</span> METHOD_PRECEDENCE_SCORE_IS_A = <span class="hljs-number">4</span>;
-    
-    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">method</span> (<span class="hljs-params">defaultFn</span>) </span>{
-        
-        <span class="hljs-keyword">var</span> dispatchers = [].slice.call(<span class="hljs-built_in">arguments</span>, <span class="hljs-number">1</span>);
-        
-        <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">fn</span> (<span class="hljs-params"></span>) </span>{
-            
-            <span class="hljs-keyword">var</span> argsLength = <span class="hljs-built_in">arguments</span>.length;
-            <span class="hljs-keyword">var</span> implementation = fn.$__default__;
-            <span class="hljs-keyword">var</span> highestScore = <span class="hljs-number">0</span>;
-            
-            <span class="hljs-keyword">var</span> dispatchValues = map(<span class="hljs-built_in">arguments</span>, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">arg, i</span>) </span>{
-                
-                <span class="hljs-keyword">var</span> dispatcher = fn.$__dispatchers__[i] || id;
-                
-                <span class="hljs-keyword">return</span> call(dispatcher, arg);
-            });
-            
-            some(fn.$__implementations__, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">impl</span>) </span>{
-                
-                <span class="hljs-keyword">var</span> currentScore = <span class="hljs-number">0</span>;
-                <span class="hljs-keyword">var</span> predicateMatches = <span class="hljs-number">0</span>;
-                
-                <span class="hljs-keyword">if</span> (argsLength &lt; impl.$__comparators__.length) {
-                    <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;
-                }
-                
-                <span class="hljs-keyword">var</span> match = every(dispatchValues, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">dispatchValue, i</span>) </span>{
-                    
-                    <span class="hljs-keyword">var</span> comparator = impl.$__comparators__[i];
-                    <span class="hljs-keyword">var</span> comparatorIsFunction = <span class="hljs-keyword">typeof</span> comparator === <span class="hljs-string">"function"</span>;
-                    <span class="hljs-keyword">var</span> argumentOrderModificator = dispatchValues.length - i;
-                    
-                    <span class="hljs-keyword">if</span> (i &gt;= impl.$__comparators__.length) {
-                        <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;
-                    }
-                    
-                    <span class="hljs-keyword">if</span> (comparatorIsFunction &amp;&amp; comparator(dispatchValue)) {
-                        predicateMatches += <span class="hljs-number">1</span>;
-                        currentScore += METHOD_PRECEDENCE_SCORE_FN * argumentOrderModificator;
-                        <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;
-                    }
-                    
-                    <span class="hljs-keyword">if</span> (identical(dispatchValue, comparator)) {
-                        currentScore += METHOD_PRECEDENCE_SCORE_ID * argumentOrderModificator;
-                        <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;
-                    }
-                    
-                    <span class="hljs-keyword">if</span> (equal(dispatchValue, comparator)) {
-                        currentScore += METHOD_PRECEDENCE_SCORE_EQ * argumentOrderModificator;
-                        <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;
-                    }
-                    
-                    <span class="hljs-keyword">if</span> (is_a(dispatchValue, comparator)) {
-                        currentScore += METHOD_PRECEDENCE_SCORE_IS_A * argumentOrderModificator;
-                        <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;
-                    }
-                    
-                    <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;
-                });
-                
-                <span class="hljs-keyword">if</span> (match &amp;&amp; currentScore &gt; highestScore) {
-                    highestScore = currentScore;
-                    implementation = impl.$__implementation__;
-                }
-                
-                <span class="hljs-keyword">if</span> (predicateMatches &gt; <span class="hljs-number">0</span> &amp;&amp; predicateMatches === dispatchValues.length) {
-                    <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;
-                }
-                
-                <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;
-            });
-            
-            <span class="hljs-keyword">return</span> apply(implementation, <span class="hljs-built_in">arguments</span>);
-        }
-        
-        <span class="hljs-keyword">if</span> (defaultFn &amp;&amp; <span class="hljs-keyword">typeof</span> defaultFn !== <span class="hljs-string">"function"</span>) {
-            <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">TypeError</span>(<span class="hljs-string">"Argument 1 must be a function."</span>);
-        }
-        
-        <span class="hljs-built_in">Object</span>.defineProperty(fn, <span class="hljs-string">"$__default__"</span>, {
-            value: defaultFn || <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
-                <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">TypeError</span>(<span class="hljs-string">"No matching implementation found for method arguments."</span>);
-            },
-            writable: <span class="hljs-literal">true</span>
-        });
-        
-        <span class="hljs-built_in">Object</span>.defineProperty(fn, <span class="hljs-string">"$__dispatchers__"</span>, {
-            value: [],
-            writable: <span class="hljs-literal">true</span>
-        });
-        
-        <span class="hljs-built_in">Object</span>.defineProperty(fn, <span class="hljs-string">"$__implementations__"</span>, {
-            value: [],
-            writable: <span class="hljs-literal">true</span>
-        });
-        
-        dispatchers.unshift(fn);
-        
-        apply(dispatch, dispatchers);
-        
-        <span class="hljs-keyword">return</span> fn;
-    }
-    
-    out.method = method;
-    
-    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">dispatch</span> (<span class="hljs-params">method</span>) </span>{
-        
-        <span class="hljs-keyword">var</span> dispatchers = [].slice.call(<span class="hljs-built_in">arguments</span>, <span class="hljs-number">1</span>);
-        
-        each(dispatchers, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">dispatcher, index</span>) </span>{
-            
-            <span class="hljs-keyword">var</span> dtype = <span class="hljs-keyword">typeof</span> dispatcher;
-            
-            <span class="hljs-built_in">console</span>.log(<span class="hljs-string">"dispatcher:"</span>, dtype, dispatcher);
-            
-            <span class="hljs-keyword">if</span> (dtype !== <span class="hljs-string">"function"</span> &amp;&amp; (dtype === <span class="hljs-string">"string"</span> || dtype === <span class="hljs-string">"number"</span>)) {
-                dispatcher = partial(pluck, <span class="hljs-literal">undefined</span>, dispatcher);
-            }
-            <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (dtype !== <span class="hljs-string">"function"</span>) {
-                <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">TypeError</span>(<span class="hljs-string">"Dispatchers must be strings, numbers or functions."</span>);
-            }
-            
-            dispatchers[index] = dispatcher;
-        });
-        
-        method.$__dispatchers__ = dispatchers;
-    }
-    
-    out.dispatch = dispatch;
-        
-    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">specialize</span> (<span class="hljs-params"></span>) </span>{
-        
-        <span class="hljs-keyword">var</span> args = [].slice.call(<span class="hljs-built_in">arguments</span>);
-        <span class="hljs-keyword">var</span> method = args.shift();
-        <span class="hljs-keyword">var</span> implementation = args.pop();
-        <span class="hljs-keyword">var</span> comparators = args.slice();
-        <span class="hljs-keyword">var</span> specialization;
-        
-        <span class="hljs-keyword">var</span> old = find(
-            method.$__implementations__,
-            <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">impl</span>) </span>{
-                <span class="hljs-keyword">return</span> every(impl.$__comparators__, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">comp, i</span>) </span>{
-                    <span class="hljs-keyword">return</span> equal(comp, comparators[i]);
-                });
-            }
-        );
-        
-        <span class="hljs-keyword">if</span> (old) {
-            old.$__implementation__ = implementation;
-        }
-        <span class="hljs-keyword">else</span> {
-            
-            specialization = {};
-            
-            <span class="hljs-built_in">Object</span>.defineProperty(specialization, <span class="hljs-string">"$__comparators__"</span>, {
-                value: comparators
-            });
-            
-            <span class="hljs-built_in">Object</span>.defineProperty(specialization, <span class="hljs-string">"$__implementation__"</span>, {
-                value: implementation,
-                writable: <span class="hljs-literal">true</span>
-            });
-            
-            method.$__implementations__.push(specialization);
-        }
-    }
-    
-    out.hidden_properties.push(<span class="hljs-string">"$__comparators__"</span>);
-    out.hidden_properties.push(<span class="hljs-string">"$__default__"</span>);
-    out.hidden_properties.push(<span class="hljs-string">"$__dispatchers__"</span>);
-    out.hidden_properties.push(<span class="hljs-string">"$__implementation__"</span>);
-    out.hidden_properties.push(<span class="hljs-string">"$__implementations__"</span>);
-    
-    out.specialize = specialize;
-        
     <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">id</span> (<span class="hljs-params">thing</span>) </span>{
         <span class="hljs-keyword">return</span> thing;
     }
     
-    out.id = id;</pre></div></div>
+    out.id = id;
+    
+    
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">measure</span> (<span class="hljs-params">fn</span>) </span>{
+        
+        <span class="hljs-keyword">var</span> time = <span class="hljs-built_in">Date</span>.now();
+        
+        fn();
+        
+        <span class="hljs-keyword">return</span> <span class="hljs-built_in">Date</span>.now() - time;
+    }
+    
+    <span class="hljs-built_in">Object</span>.defineProperty(out, <span class="hljs-string">"measure"</span>, {value: measure});
+    
+    
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">perform</span> (<span class="hljs-params">fn, times</span>) </span>{
+        <span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> i = <span class="hljs-number">0</span>; i &lt; times; i += <span class="hljs-number">1</span>) {
+            fn();
+        }
+    }
+    
+    <span class="hljs-built_in">Object</span>.defineProperty(out, <span class="hljs-string">"perform"</span>, {value: perform});
+    
+    
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">loop</span> (<span class="hljs-params">fn</span>) </span>{
+        <span class="hljs-keyword">while</span> (fn()) {</pre></div></div>
             
         </li>
         
@@ -1103,26 +1144,16 @@ and the collection itself to a reducer function <code>fn</code>.</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-11">&#182;</a>
               </div>
-              <h2 id="polymorphic-versions-methods-of-enjoy-collection-functions">Polymorphic versions (methods) of ENJOY collection functions</h2>
+              <p>do nothing</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    
-    <span class="hljs-keyword">var</span> p_each = method(each);
+            <div class="content"><div class='highlight'><pre>        }
+    }
     
-    <span class="hljs-built_in">Object</span>.defineProperty(out, <span class="hljs-string">"p_each"</span>, {value: p_each});
-    <span class="hljs-built_in">Object</span>.defineProperty(out.poly, <span class="hljs-string">"each"</span>, {value: p_each});
+    <span class="hljs-built_in">Object</span>.defineProperty(out, <span class="hljs-string">"loop"</span>, {value: loop});
     
-    <span class="hljs-keyword">var</span> p_some = method(some);
-    
-    <span class="hljs-built_in">Object</span>.defineProperty(out, <span class="hljs-string">"p_some"</span>, {value: p_some});
-    <span class="hljs-built_in">Object</span>.defineProperty(out.poly, <span class="hljs-string">"some"</span>, {value: p_some});
-    
-    <span class="hljs-keyword">var</span> p_every = method(every);
-    
-    <span class="hljs-built_in">Object</span>.defineProperty(out, <span class="hljs-string">"p_every"</span>, {value: p_every});
-    <span class="hljs-built_in">Object</span>.defineProperty(out.poly, <span class="hljs-string">"every"</span>, {value: p_every});
-    
+
     
     (<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
         

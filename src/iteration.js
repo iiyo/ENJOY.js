@@ -1,30 +1,18 @@
     
-    function each (collection, fn) {
+    var each = method(function (collection, fn) {
         
-        if (Array.isArray(collection)) {
-            return collection.forEach(fn);
-        }
+        var index, length, ids = keys(collection);
         
-        if (typeof collection.length === "number" && collection.length > 0) {
-            return eachIterable(collection, fn);
+        for (index = 0, length = ids.length; index < length; index += 1) {
+            fn(at(collection, ids[index]), ids[index], collection);
         }
-        
-        return eachObject(collection, fn);
-    }
+    });
     
-    out.each = each;
+    specialize(each, is_array, function (collection, fn) {
+        return collection.forEach(fn);
+    });
     
-    function eachIterable (collection, fn) {
-        for (var index = 0; index < collection.length; index += 1) {
-            fn(collection[index], index, collection);
-        }
-    }
-    
-    function eachObject (collection, fn) {
-        for (var key in collection) {
-            fn(collection[key], key, collection);
-        }
-    }
+    Object.defineProperty(out, "each", {value: each});
     
     
     function every (collection, fn) {
@@ -44,14 +32,14 @@
         return result;
     }
     
-    out.every = every;
+    Object.defineProperty(out, "every", {value: every});
     
     
-    function some (collection, fn) {
-        return Array.isArray(collection) ? someArray(collection, fn) : someObject(collection, fn);
-    }
+    var some = method(someObject);
     
-    out.some = some;
+    specialize(some, Array.isArray, someArray);
+    
+    Object.defineProperty(out, "some", {value: some});
     
     function someArray (collection, fn) {
         
@@ -71,11 +59,12 @@
     
     function someObject (collection, fn) {
         
-        var key, value;
+        var ids = keys(collection), value, i, length, key;
         
-        for (key in collection) {
+        for (i = 0, length = ids.length; i < length; i += 1) {
             
-            value = fn(collection[key], key, collection);
+            key = ids[i];
+            value = fn(at(collection, key), key, collection);
             
             if (value) {
                 return true;

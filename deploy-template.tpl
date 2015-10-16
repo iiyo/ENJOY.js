@@ -4,7 +4,8 @@
     
     var out = {
         hidden_properties: [],
-        poly: {}
+        poly: {}, /* methods for basic functions */
+        core: {} /* basic functions */
     };
     
     {{content}}

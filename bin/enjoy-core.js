@@ -4,9 +4,295 @@
     
     var out = {
         hidden_properties: [],
-        poly: {}
+        poly: {}, /* methods for basic functions */
+        core: {} /* basic functions */
     };
     
+        
+    function apply (fn, args) {
+        
+        if (typeof fn !== "function") {
+            throw new TypeError("Argument 'fn' must be a function.");
+        }
+        
+        return fn.apply(undefined, args);
+    }
+    
+    out.apply = apply;
+    
+    function bind (fn) {
+        
+        var args = [].slice.call(arguments);
+        
+        args.shift();
+        
+        return function () {
+            
+            var allArgs = args.slice(), i;
+            
+            for (i = 0; i < arguments.length; i += 1) {
+                allArgs.push(arguments[i]);
+            }
+            
+            fn.apply(undefined, allArgs);
+        };
+    }
+    
+    out.bind = bind;
+    
+    function call (fn) {
+        
+        var args = [].slice.call(arguments);
+        
+        args.shift();
+        
+        return fn.apply(undefined, args);
+    }
+    
+    out.call = call;
+    
+    function partial (fn) {
+        
+        var args = [].slice.call(arguments, 1);
+        
+        return function () {
+            
+            var callArgs = [].slice.call(arguments);
+            
+            var allArgs = args.map(function (arg, index) {
+                
+                if (typeof arg === "undefined") {
+                    return callArgs.shift();
+                }
+                
+                return arg;
+            });
+            
+            if (callArgs.length) {
+                callArgs.forEach(function (arg) {
+                    allArgs.push(arg);
+                });
+            }
+            
+            return apply(fn, allArgs);
+        };
+    }
+    
+    out.partial = partial;
+    
+    function pipe (value) {
+        
+        each(arguments, function (fn, index) {
+            if (index > 0) {
+                value = fn(value);
+            }
+        });
+        
+        return value;
+    }
+    
+    out.pipe = pipe;
+    
+    function piped () {
+        
+        var functions = [].slice.call(arguments);
+        
+        return function (value) {
+            
+            var args = functions.slice();
+            
+            args.unshift(value);
+            
+            return apply(pipe, args);
+        };
+    };
+    
+    out.piped = piped;
+        
+    var METHOD_PRECEDENCE_SCORE_FN = 10;
+    var METHOD_PRECEDENCE_SCORE_ID = 8;
+    var METHOD_PRECEDENCE_SCORE_EQ = 6;
+    var METHOD_PRECEDENCE_SCORE_IS_A = 4;
+    
+    function method (defaultFn) {
+        
+        var dispatchers = [].slice.call(arguments, 1);
+        
+        function fn () {
+            
+            var argsLength = arguments.length;
+            var implementation = fn.$__default__;
+            var highestScore = 0;
+            
+            var dispatchValues = [].map.call(arguments, function (arg, i) {
+                
+                var dispatcher = fn.$__dispatchers__[i] || id;
+                
+                return call(dispatcher, arg);
+            });
+            
+            fn.$__implementations__.some(function (impl) {
+                
+                var currentScore = 0;
+                var predicateMatches = 0;
+                
+                if (argsLength < impl.$__comparators__.length) {
+                    return false;
+                }
+                
+                var match = dispatchValues.every(function (dispatchValue, i) {
+                    
+                    var comparator = impl.$__comparators__[i];
+                    var comparatorIsFunction = typeof comparator === "function";
+                    var argumentOrderModificator = dispatchValues.length - i;
+                    
+                    if (i >= impl.$__comparators__.length) {
+                        return true;
+                    }
+                    
+                    if (comparatorIsFunction && comparator(dispatchValue)) {
+                        predicateMatches += 1;
+                        currentScore += METHOD_PRECEDENCE_SCORE_FN * argumentOrderModificator;
+                        return true;
+                    }
+                    
+                    if (identical(dispatchValue, comparator)) {
+                        currentScore += METHOD_PRECEDENCE_SCORE_ID * argumentOrderModificator;
+                        return true;
+                    }
+                    
+                    if (equal(dispatchValue, comparator)) {
+                        currentScore += METHOD_PRECEDENCE_SCORE_EQ * argumentOrderModificator;
+                        return true;
+                    }
+                    
+                    if (is_a(dispatchValue, comparator)) {
+                        currentScore += METHOD_PRECEDENCE_SCORE_IS_A * argumentOrderModificator;
+                        return true;
+                    }
+                    
+                    return false;
+                });
+                
+                if (match && currentScore > highestScore) {
+                    highestScore = currentScore;
+                    implementation = impl.$__implementation__;
+                }
+                
+                if (predicateMatches > 0 && predicateMatches === dispatchValues.length) {
+                    return true;
+                }
+                
+                return false;
+            });
+            
+            return apply(implementation, arguments);
+        }
+        
+        if (defaultFn && typeof defaultFn !== "function") {
+            throw new TypeError("Argument 1 must be a function.");
+        }
+        
+        Object.defineProperty(fn, "$__default__", {
+            value: defaultFn || function () {
+                throw new TypeError("No matching implementation found for method arguments.");
+            },
+            writable: true
+        });
+        
+        Object.defineProperty(fn, "$__dispatchers__", {
+            value: [],
+            writable: true
+        });
+        
+        Object.defineProperty(fn, "$__implementations__", {
+            value: [],
+            writable: true
+        });
+        
+        Object.defineProperty(fn, "$__type__", {value: "method"});
+        
+        dispatchers.unshift(fn);
+        
+        apply(dispatch, dispatchers);
+        
+        return fn;
+    }
+    
+    Object.defineProperty(out, "method", {value: method});
+    
+    function dispatch (method) {
+        
+        var dispatchers = [].slice.call(arguments, 1);
+        
+        dispatchers.forEach(function (dispatcher, index) {
+            
+            var dtype = typeof dispatcher;
+            
+            if (dtype !== "function" && (dtype === "string" || dtype === "number")) {
+                dispatcher = partial(at, undefined, dispatcher);
+            }
+            else if (dtype !== "function") {
+                throw new TypeError("Dispatchers must be strings, numbers or functions.");
+            }
+            
+            dispatchers[index] = dispatcher;
+        });
+        
+        method.$__dispatchers__ = dispatchers;
+    }
+    
+    Object.defineProperty(out, "dispatch", {value: dispatch});
+        
+    function specialize () {
+        
+        var args = [].slice.call(arguments);
+        var method = args.shift();
+        var implementation = args.pop();
+        var comparators = args.slice();
+        var specialization, old;
+        
+        method.$__implementations__.some(function (impl) {
+            
+            var matchesEvery = impl.$__comparators__.every(function (comp, i) {
+                return equal(comp, comparators[i]);
+            });
+            
+            if (matchesEvery) {
+                old = impl;
+                return true;
+            }
+            
+            return false;
+        });
+        
+        if (old) {
+            old.$__implementation__ = implementation;
+        }
+        else {
+            
+            specialization = {};
+            
+            Object.defineProperty(specialization, "$__comparators__", {
+                value: comparators
+            });
+            
+            Object.defineProperty(specialization, "$__implementation__", {
+                value: implementation,
+                writable: true
+            });
+            
+            method.$__implementations__.push(specialization);
+        }
+    }
+    
+    out.hidden_properties.push("$__comparators__");
+    out.hidden_properties.push("$__default__");
+    out.hidden_properties.push("$__dispatchers__");
+    out.hidden_properties.push("$__implementation__");
+    out.hidden_properties.push("$__implementations__");
+    
+    Object.defineProperty(out, "specialize", {value: specialize});
         
     function is_null (a) {
         return a === null;
@@ -58,6 +344,10 @@
     
     function is_derivable (a) {
         return is_object(a) && "$__children__" in a && Array.isArray(a.$__children__);
+    }
+    
+    function is_method (a) {
+        return is_object(a) && a.$__type__ === "method";
     }
     
     function valid (data, schema) {
@@ -178,8 +468,8 @@
             throw new TypeError("Parameter 'b' must be derivable.");
         }
         
-        return some(b.$__children__, function (c) {
-            return (c === a ? true : some(c.$__children__, bind(descendant_of, a)));
+        return b.$__children__.some(function (c) {
+            return (c === a ? true : c.$__children__.some(bind(descendant_of, a)));
         });
     }
     
@@ -206,7 +496,7 @@
             return true;
         }
         
-        return some(t.$__children__, function (child) {
+        return t.$__children__.some(function (child) {
             return is_a(a, child);
         });
     }
@@ -265,6 +555,7 @@
     Object.defineProperty(out, "is_primitive", {value: is_primitive});
     Object.defineProperty(out, "is_type", {value: is_type});
     Object.defineProperty(out, "is_derivable", {value: is_derivable});
+    Object.defineProperty(out, "is_method", {value: is_method});
     
     Object.defineProperty(out, "t_primitive", {value: t_primitive});
     Object.defineProperty(out, "t_composite", {value: t_composite});
@@ -368,13 +659,25 @@
     out.head = head;
     
     
-    function keys (collection) {
-        return map(collection, function (item, key) {
-            return key;
-        });
-    }
+    var keys = method(function (collection) {
+        
+        var result = [];
+        
+        if (Array.isArray(collection)) {
+            collection.forEach(function (item, key) {
+                result.push(key);
+            });
+        }
+        else if (typeof collection === "object") {
+            for (key in collection) {
+                result.push(key);
+            }
+        }
+        
+        return result;
+    });
     
-    out.keys = keys;
+    Object.defineProperty(out, "keys", {value: keys});
     
     
     function map (collection, fn) {
@@ -476,11 +779,11 @@
 // Returns a collection's value at `key`.
 //
 
-    function at (collection, key) {
+    var at = method(function (collection, key) {
         return collection[key];
-    }
+    });
     
-    Object.defineProperty(out, "at", {value: at});
+    Object.defineProperty(out.core, "at", {value: at});
     
 
 //
@@ -495,6 +798,7 @@
         return partial(at, undefined, key);
     }
     
+    Object.defineProperty(out.core, "picker", {value: picker});
     Object.defineProperty(out, "picker", {value: picker});
     
 
@@ -506,11 +810,12 @@
 // Puts a `value` into a collection at `key`.
 //
 
-    function put (collection, key, value) {
+    var put = method(function (collection, key, value) {
         collection[key] = value;
-    }
+        return collection;
+    });
     
-    Object.defineProperty(out, "put", {value: put});
+    Object.defineProperty(out.core, "put", {value: put});
     
 
 //
@@ -525,6 +830,7 @@
         return partial(put, undefined, key, undefined);
     }
     
+    Object.defineProperty(out.core, "putter", {value: putter});
     Object.defineProperty(out, "putter", {value: putter});
     
 
@@ -542,6 +848,7 @@
         });
     }
     
+    Object.defineProperty(out.core, "values", {value: values});
     Object.defineProperty(out, "values", {value: values});
         
     function identical (a, b) {
@@ -621,132 +928,20 @@
     out.equal = equal;
     
     
-    function apply (fn, args) {
+    var each = method(function (collection, fn) {
         
-        if (typeof fn !== "function") {
-            throw new TypeError("Argument 'fn' must be a function.");
+        var index, length, ids = keys(collection);
+        
+        for (index = 0, length = ids.length; index < length; index += 1) {
+            fn(at(collection, ids[index]), ids[index], collection);
         }
-        
-        return fn.apply(undefined, args);
-    }
+    });
     
-    out.apply = apply;
+    specialize(each, is_array, function (collection, fn) {
+        return collection.forEach(fn);
+    });
     
-    function bind (fn) {
-        
-        var args = [].slice.call(arguments);
-        
-        args.shift();
-        
-        return function () {
-            
-            var allArgs = args.slice(), i;
-            
-            for (i = 0; i < arguments.length; i += 1) {
-                allArgs.push(arguments[i]);
-            }
-            
-            fn.apply(undefined, allArgs);
-        };
-    }
-    
-    out.bind = bind;
-    
-    function call (fn) {
-        
-        var args = [].slice.call(arguments);
-        
-        args.shift();
-        
-        return fn.apply(undefined, args);
-    }
-    
-    out.call = call;
-    
-    function partial (fn) {
-        
-        var args = [].slice.call(arguments, 1);
-        
-        return function () {
-            
-            var callArgs = [].slice.call(arguments);
-            
-            var allArgs = args.map(function (arg, index) {
-                
-                if (typeof arg === "undefined") {
-                    return callArgs.shift();
-                }
-                
-                return arg;
-            });
-            
-            if (callArgs.length) {
-                callArgs.forEach(function (arg) {
-                    allArgs.push(arg);
-                });
-            }
-            
-            return apply(fn, allArgs);
-        };
-    }
-    
-    out.partial = partial;
-    
-    function pipe (value) {
-        
-        each(arguments, function (fn, index) {
-            if (index > 0) {
-                value = fn(value);
-            }
-        });
-        
-        return value;
-    }
-    
-    out.pipe = pipe;
-    
-    function piped () {
-        
-        var functions = [].slice.call(arguments);
-        
-        return function (value) {
-            
-            var args = functions.slice();
-            
-            args.unshift(value);
-            
-            return apply(pipe, args);
-        };
-    };
-    
-    out.piped = piped;
-        
-    function each (collection, fn) {
-        
-        if (Array.isArray(collection)) {
-            return collection.forEach(fn);
-        }
-        
-        if (typeof collection.length === "number" && collection.length > 0) {
-            return eachIterable(collection, fn);
-        }
-        
-        return eachObject(collection, fn);
-    }
-    
-    out.each = each;
-    
-    function eachIterable (collection, fn) {
-        for (var index = 0; index < collection.length; index += 1) {
-            fn(collection[index], index, collection);
-        }
-    }
-    
-    function eachObject (collection, fn) {
-        for (var key in collection) {
-            fn(collection[key], key, collection);
-        }
-    }
+    Object.defineProperty(out, "each", {value: each});
     
     
     function every (collection, fn) {
@@ -766,14 +961,14 @@
         return result;
     }
     
-    out.every = every;
+    Object.defineProperty(out, "every", {value: every});
     
     
-    function some (collection, fn) {
-        return Array.isArray(collection) ? someArray(collection, fn) : someObject(collection, fn);
-    }
+    var some = method(someObject);
     
-    out.some = some;
+    specialize(some, Array.isArray, someArray);
+    
+    Object.defineProperty(out, "some", {value: some});
     
     function someArray (collection, fn) {
         
@@ -793,11 +988,12 @@
     
     function someObject (collection, fn) {
         
-        var key, value;
+        var ids = keys(collection), value, i, length, key;
         
-        for (key in collection) {
+        for (i = 0, length = ids.length; i < length; i += 1) {
             
-            value = fn(collection[key], key, collection);
+            key = ids[i];
+            value = fn(at(collection, key), key, collection);
             
             if (value) {
                 return true;
@@ -808,211 +1004,43 @@
     }
     
     
-    var METHOD_PRECEDENCE_SCORE_FN = 10;
-    var METHOD_PRECEDENCE_SCORE_ID = 8;
-    var METHOD_PRECEDENCE_SCORE_EQ = 6;
-    var METHOD_PRECEDENCE_SCORE_IS_A = 4;
-    
-    function method (defaultFn) {
-        
-        var dispatchers = [].slice.call(arguments, 1);
-        
-        function fn () {
-            
-            var argsLength = arguments.length;
-            var implementation = fn.$__default__;
-            var highestScore = 0;
-            
-            var dispatchValues = map(arguments, function (arg, i) {
-                
-                var dispatcher = fn.$__dispatchers__[i] || id;
-                
-                return call(dispatcher, arg);
-            });
-            
-            some(fn.$__implementations__, function (impl) {
-                
-                var currentScore = 0;
-                var predicateMatches = 0;
-                
-                if (argsLength < impl.$__comparators__.length) {
-                    return false;
-                }
-                
-                var match = every(dispatchValues, function (dispatchValue, i) {
-                    
-                    var comparator = impl.$__comparators__[i];
-                    var comparatorIsFunction = typeof comparator === "function";
-                    var argumentOrderModificator = dispatchValues.length - i;
-                    
-                    if (i >= impl.$__comparators__.length) {
-                        return true;
-                    }
-                    
-                    if (comparatorIsFunction && comparator(dispatchValue)) {
-                        predicateMatches += 1;
-                        currentScore += METHOD_PRECEDENCE_SCORE_FN * argumentOrderModificator;
-                        return true;
-                    }
-                    
-                    if (identical(dispatchValue, comparator)) {
-                        currentScore += METHOD_PRECEDENCE_SCORE_ID * argumentOrderModificator;
-                        return true;
-                    }
-                    
-                    if (equal(dispatchValue, comparator)) {
-                        currentScore += METHOD_PRECEDENCE_SCORE_EQ * argumentOrderModificator;
-                        return true;
-                    }
-                    
-                    if (is_a(dispatchValue, comparator)) {
-                        currentScore += METHOD_PRECEDENCE_SCORE_IS_A * argumentOrderModificator;
-                        return true;
-                    }
-                    
-                    return false;
-                });
-                
-                if (match && currentScore > highestScore) {
-                    highestScore = currentScore;
-                    implementation = impl.$__implementation__;
-                }
-                
-                if (predicateMatches > 0 && predicateMatches === dispatchValues.length) {
-                    return true;
-                }
-                
-                return false;
-            });
-            
-            return apply(implementation, arguments);
-        }
-        
-        if (defaultFn && typeof defaultFn !== "function") {
-            throw new TypeError("Argument 1 must be a function.");
-        }
-        
-        Object.defineProperty(fn, "$__default__", {
-            value: defaultFn || function () {
-                throw new TypeError("No matching implementation found for method arguments.");
-            },
-            writable: true
-        });
-        
-        Object.defineProperty(fn, "$__dispatchers__", {
-            value: [],
-            writable: true
-        });
-        
-        Object.defineProperty(fn, "$__implementations__", {
-            value: [],
-            writable: true
-        });
-        
-        dispatchers.unshift(fn);
-        
-        apply(dispatch, dispatchers);
-        
-        return fn;
-    }
-    
-    out.method = method;
-    
-    function dispatch (method) {
-        
-        var dispatchers = [].slice.call(arguments, 1);
-        
-        each(dispatchers, function (dispatcher, index) {
-            
-            var dtype = typeof dispatcher;
-            
-            console.log("dispatcher:", dtype, dispatcher);
-            
-            if (dtype !== "function" && (dtype === "string" || dtype === "number")) {
-                dispatcher = partial(pluck, undefined, dispatcher);
-            }
-            else if (dtype !== "function") {
-                throw new TypeError("Dispatchers must be strings, numbers or functions.");
-            }
-            
-            dispatchers[index] = dispatcher;
-        });
-        
-        method.$__dispatchers__ = dispatchers;
-    }
-    
-    out.dispatch = dispatch;
-        
-    function specialize () {
-        
-        var args = [].slice.call(arguments);
-        var method = args.shift();
-        var implementation = args.pop();
-        var comparators = args.slice();
-        var specialization;
-        
-        var old = find(
-            method.$__implementations__,
-            function (impl) {
-                return every(impl.$__comparators__, function (comp, i) {
-                    return equal(comp, comparators[i]);
-                });
-            }
-        );
-        
-        if (old) {
-            old.$__implementation__ = implementation;
-        }
-        else {
-            
-            specialization = {};
-            
-            Object.defineProperty(specialization, "$__comparators__", {
-                value: comparators
-            });
-            
-            Object.defineProperty(specialization, "$__implementation__", {
-                value: implementation,
-                writable: true
-            });
-            
-            method.$__implementations__.push(specialization);
-        }
-    }
-    
-    out.hidden_properties.push("$__comparators__");
-    out.hidden_properties.push("$__default__");
-    out.hidden_properties.push("$__dispatchers__");
-    out.hidden_properties.push("$__implementation__");
-    out.hidden_properties.push("$__implementations__");
-    
-    out.specialize = specialize;
-        
     function id (thing) {
         return thing;
     }
     
     out.id = id;
     
-//
-// ## Polymorphic versions (methods) of ENJOY collection functions
-//
     
-    var p_each = method(each);
+    function measure (fn) {
+        
+        var time = Date.now();
+        
+        fn();
+        
+        return Date.now() - time;
+    }
     
-    Object.defineProperty(out, "p_each", {value: p_each});
-    Object.defineProperty(out.poly, "each", {value: p_each});
+    Object.defineProperty(out, "measure", {value: measure});
     
-    var p_some = method(some);
     
-    Object.defineProperty(out, "p_some", {value: p_some});
-    Object.defineProperty(out.poly, "some", {value: p_some});
+    function perform (fn, times) {
+        for (var i = 0; i < times; i += 1) {
+            fn();
+        }
+    }
     
-    var p_every = method(every);
+    Object.defineProperty(out, "perform", {value: perform});
     
-    Object.defineProperty(out, "p_every", {value: p_every});
-    Object.defineProperty(out.poly, "every", {value: p_every});
     
+    function loop (fn) {
+        while (fn()) {
+            // do nothing
+        }
+    }
+    
+    Object.defineProperty(out, "loop", {value: loop});
+    
+
     
     (function () {
         

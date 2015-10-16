@@ -14,14 +14,14 @@
             var implementation = fn.$__default__;
             var highestScore = 0;
             
-            var dispatchValues = map(arguments, function (arg, i) {
+            var dispatchValues = [].map.call(arguments, function (arg, i) {
                 
                 var dispatcher = fn.$__dispatchers__[i] || id;
                 
                 return call(dispatcher, arg);
             });
             
-            some(fn.$__implementations__, function (impl) {
+            fn.$__implementations__.some(function (impl) {
                 
                 var currentScore = 0;
                 var predicateMatches = 0;
@@ -30,7 +30,7 @@
                     return false;
                 }
                 
-                var match = every(dispatchValues, function (dispatchValue, i) {
+                var match = dispatchValues.every(function (dispatchValue, i) {
                     
                     var comparator = impl.$__comparators__[i];
                     var comparatorIsFunction = typeof comparator === "function";
@@ -100,6 +100,8 @@
             writable: true
         });
         
+        Object.defineProperty(fn, "$__type__", {value: "method"});
+        
         dispatchers.unshift(fn);
         
         apply(dispatch, dispatchers);
@@ -107,20 +109,18 @@
         return fn;
     }
     
-    out.method = method;
+    Object.defineProperty(out, "method", {value: method});
     
     function dispatch (method) {
         
         var dispatchers = [].slice.call(arguments, 1);
         
-        each(dispatchers, function (dispatcher, index) {
+        dispatchers.forEach(function (dispatcher, index) {
             
             var dtype = typeof dispatcher;
             
-            console.log("dispatcher:", dtype, dispatcher);
-            
             if (dtype !== "function" && (dtype === "string" || dtype === "number")) {
-                dispatcher = partial(pluck, undefined, dispatcher);
+                dispatcher = partial(at, undefined, dispatcher);
             }
             else if (dtype !== "function") {
                 throw new TypeError("Dispatchers must be strings, numbers or functions.");
@@ -132,7 +132,7 @@
         method.$__dispatchers__ = dispatchers;
     }
     
-    out.dispatch = dispatch;
+    Object.defineProperty(out, "dispatch", {value: dispatch});
         
     function specialize () {
         
@@ -140,16 +140,21 @@
         var method = args.shift();
         var implementation = args.pop();
         var comparators = args.slice();
-        var specialization;
+        var specialization, old;
         
-        var old = find(
-            method.$__implementations__,
-            function (impl) {
-                return every(impl.$__comparators__, function (comp, i) {
-                    return equal(comp, comparators[i]);
-                });
+        method.$__implementations__.some(function (impl) {
+            
+            var matchesEvery = impl.$__comparators__.every(function (comp, i) {
+                return equal(comp, comparators[i]);
+            });
+            
+            if (matchesEvery) {
+                old = impl;
+                return true;
             }
-        );
+            
+            return false;
+        });
         
         if (old) {
             old.$__implementation__ = implementation;
@@ -177,5 +182,5 @@
     out.hidden_properties.push("$__implementation__");
     out.hidden_properties.push("$__implementations__");
     
-    out.specialize = specialize;
+    Object.defineProperty(out, "specialize", {value: specialize});
     

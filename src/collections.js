@@ -83,13 +83,25 @@
     out.head = head;
     
     
-    function keys (collection) {
-        return map(collection, function (item, key) {
-            return key;
-        });
-    }
+    var keys = method(function (collection) {
+        
+        var result = [];
+        
+        if (Array.isArray(collection)) {
+            collection.forEach(function (item, key) {
+                result.push(key);
+            });
+        }
+        else if (typeof collection === "object") {
+            for (key in collection) {
+                result.push(key);
+            }
+        }
+        
+        return result;
+    });
     
-    out.keys = keys;
+    Object.defineProperty(out, "keys", {value: keys});
     
     
     function map (collection, fn) {
@@ -191,11 +203,11 @@
 // Returns a collection's value at `key`.
 //
 
-    function at (collection, key) {
+    var at = method(function (collection, key) {
         return collection[key];
-    }
+    });
     
-    Object.defineProperty(out, "at", {value: at});
+    Object.defineProperty(out.core, "at", {value: at});
     
 
 //
@@ -210,6 +222,7 @@
         return partial(at, undefined, key);
     }
     
+    Object.defineProperty(out.core, "picker", {value: picker});
     Object.defineProperty(out, "picker", {value: picker});
     
 
@@ -221,11 +234,12 @@
 // Puts a `value` into a collection at `key`.
 //
 
-    function put (collection, key, value) {
+    var put = method(function (collection, key, value) {
         collection[key] = value;
-    }
+        return collection;
+    });
     
-    Object.defineProperty(out, "put", {value: put});
+    Object.defineProperty(out.core, "put", {value: put});
     
 
 //
@@ -240,6 +254,7 @@
         return partial(put, undefined, key, undefined);
     }
     
+    Object.defineProperty(out.core, "putter", {value: putter});
     Object.defineProperty(out, "putter", {value: putter});
     
 
@@ -257,5 +272,6 @@
         });
     }
     
+    Object.defineProperty(out.core, "values", {value: values});
     Object.defineProperty(out, "values", {value: values});
     

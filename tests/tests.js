@@ -153,8 +153,10 @@
         return e.is_object(thing) && thing.nodeType === 1;
     }
     
-    e.specialize(e.p_each, is_dom_element, function (element, fn) {
-        [].forEach.call(element.children, fn);
+    e.specialize(e.each, is_dom_element, function (element, fn) {
+        [].forEach.call(element.children, function (item, index) {
+            fn(item, index, element);
+        });
     });
     
     var my_element = document.createElement("div");
@@ -162,8 +164,8 @@
     
     my_element.appendChild(my_child_element);
     
-    e.p_each([1, 2, 3], console.log.bind(console, "p_each for array:"));
-    e.p_each(my_element, console.log.bind(console, "p_each for DOMElement:"));
+    e.each([1, 2, 3], console.log.bind(console, "each for array:"));
+    e.each(my_element, console.log.bind(console, "each for DOMElement:"));
     
     var some_object = {foo: "bar"};
     var some_other_object = {bar: "baz"};

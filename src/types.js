@@ -51,6 +51,10 @@
         return is_object(a) && "$__children__" in a && Array.isArray(a.$__children__);
     }
     
+    function is_method (a) {
+        return is_object(a) && a.$__type__ === "method";
+    }
+    
     function valid (data, schema) {
         
         var key;
@@ -169,8 +173,8 @@
             throw new TypeError("Parameter 'b' must be derivable.");
         }
         
-        return some(b.$__children__, function (c) {
-            return (c === a ? true : some(c.$__children__, bind(descendant_of, a)));
+        return b.$__children__.some(function (c) {
+            return (c === a ? true : c.$__children__.some(bind(descendant_of, a)));
         });
     }
     
@@ -197,7 +201,7 @@
             return true;
         }
         
-        return some(t.$__children__, function (child) {
+        return t.$__children__.some(function (child) {
             return is_a(a, child);
         });
     }
@@ -256,6 +260,7 @@
     Object.defineProperty(out, "is_primitive", {value: is_primitive});
     Object.defineProperty(out, "is_type", {value: is_type});
     Object.defineProperty(out, "is_derivable", {value: is_derivable});
+    Object.defineProperty(out, "is_method", {value: is_method});
     
     Object.defineProperty(out, "t_primitive", {value: t_primitive});
     Object.defineProperty(out, "t_composite", {value: t_composite});
