@@ -127,4 +127,23 @@
     console.log("Father, child:", e.is_a(father, child));
     console.log("Mother, child:", e.is_a(mother, child));
     
+    var my_method = e.method(function () {
+        console.log("Default implementation.");
+    });
+    
+    e.specialize(my_method, e.t_integer, e.t_integer, function (n1, n2) {
+        console.log("integer, integer:", n1, n2);
+    });
+    
+    e.specialize(my_method, 0.5, e.t_integer, function (n1, n2) {
+        console.log("0.5, integer:", n1, n2);
+    });
+    
+    e.specialize(my_method, e.t_object, e.t_integer, function (o1, n1) {
+        console.log("object, integer:", o1, n1);
+    });
+    
+    my_method({}, 12);
+    my_method({}, 1.2);
+    
 }());

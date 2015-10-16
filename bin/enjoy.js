@@ -1172,6 +1172,11 @@ using.ajax = (function () {
                     var comparatorIsFunction = typeof comparator === "function";
                     var argumentOrderModificator = dispatchValues.length - i;
                     
+                    if (i >= impl.$__comparators__.length) {
+                        console.log("No comparator for argument found. Assuming match, scores 0.");
+                        return true;
+                    }
+                    
                     if (comparatorIsFunction && comparator(dispatchValue)) {
                         predicateMatches += 1;
                         currentScore += METHOD_PRECEDENCE_SCORE_FN * argumentOrderModificator;
@@ -1196,7 +1201,7 @@ using.ajax = (function () {
                     return false;
                 });
                 
-                if (currentScore > highestScore) {
+                if (match && currentScore > highestScore) {
                     highestScore = currentScore;
                     implementation = impl.$__implementation__;
                 }

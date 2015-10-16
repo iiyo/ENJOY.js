@@ -102,7 +102,7 @@ your data inside of classes.
 
 ```javascript
 using("enjoy::method", "enjoy::specialize", "enjoy::t_integer", "enjoy::t_object").
-define("my_method", function (method, specialize, t_integer) {
+define("my_method", function (method, specialize, t_integer, t_object) {
     
     var my_method = method(function () {
         console.log("Default implementation.");
@@ -114,6 +114,10 @@ define("my_method", function (method, specialize, t_integer) {
     
     specialize(my_method, 0.5, t_integer, function (n1, n2) {
         console.log("0.5, integer:", n1, n2);
+    });
+    
+    specialize(my_method, t_object, t_integer, function (o1, n1) {
+        console.log("object, integer:", o1, n1);
     });
     
     return my_method;
