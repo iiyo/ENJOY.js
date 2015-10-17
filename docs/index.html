@@ -1103,6 +1103,23 @@ and the collection itself to a reducer function <code>fn</code>.</p>
         <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;
     }
     
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">perform</span> (<span class="hljs-params">fn, times</span>) </span>{
+        <span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> i = <span class="hljs-number">0</span>; i &lt; times; i += <span class="hljs-number">1</span>) {
+            fn();
+        }
+    }
+    
+    <span class="hljs-built_in">Object</span>.defineProperty(out, <span class="hljs-string">"perform"</span>, {value: perform});
+    
+    
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">loop</span> (<span class="hljs-params">fn</span>) </span>{
+        <span class="hljs-keyword">while</span> (fn()) {
+            <span class="hljs-comment">/* do nothing */</span>
+        }
+    }
+    
+    <span class="hljs-built_in">Object</span>.defineProperty(out, <span class="hljs-string">"loop"</span>, {value: loop});
+    
     
     <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">id</span> (<span class="hljs-params">thing</span>) </span>{
         <span class="hljs-keyword">return</span> thing;
@@ -1123,35 +1140,9 @@ and the collection itself to a reducer function <code>fn</code>.</p>
     <span class="hljs-built_in">Object</span>.defineProperty(out, <span class="hljs-string">"measure"</span>, {value: measure});
     
     
-    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">perform</span> (<span class="hljs-params">fn, times</span>) </span>{
-        <span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> i = <span class="hljs-number">0</span>; i &lt; times; i += <span class="hljs-number">1</span>) {
-            fn();
-        }
-    }
+    <span class="hljs-keyword">var</span> print = <span class="hljs-built_in">console</span>.log.bind(<span class="hljs-built_in">console</span>);
     
-    <span class="hljs-built_in">Object</span>.defineProperty(out, <span class="hljs-string">"perform"</span>, {value: perform});
-    
-    
-    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">loop</span> (<span class="hljs-params">fn</span>) </span>{
-        <span class="hljs-keyword">while</span> (fn()) {</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-11">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-11">&#182;</a>
-              </div>
-              <p>do nothing</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre>        }
-    }
-    
-    <span class="hljs-built_in">Object</span>.defineProperty(out, <span class="hljs-string">"loop"</span>, {value: loop});
+    <span class="hljs-built_in">Object</span>.defineProperty(out, <span class="hljs-string">"print"</span>, {value: print});
     
 
     
