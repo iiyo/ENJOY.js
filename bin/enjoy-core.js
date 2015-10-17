@@ -801,6 +801,21 @@
     Object.defineProperty(out.core, "picker", {value: picker});
     Object.defineProperty(out, "picker", {value: picker});
     
+//
+// ### Function getter(collection)
+//
+//     collection -> (string | number -> any)
+//
+// Binds `at` to a `collection`.
+//
+
+    function getter (collection) {
+        return bind(at, collection);
+    }
+    
+    Object.defineProperty(out.core, "getter", {value: getter});
+    Object.defineProperty(out, "getter", {value: getter});
+    
 
 //
 // ### Function put(collection, key, value)
@@ -832,6 +847,22 @@
     
     Object.defineProperty(out.core, "putter", {value: putter});
     Object.defineProperty(out, "putter", {value: putter});
+    
+
+//
+// ### Function setter(collection)
+//
+//     collection -> (string -> value -> undefined)
+//
+// Binds `put` to a collection.
+//
+
+    function setter (collection) {
+        return bind(put, collection);
+    }
+    
+    Object.defineProperty(out.core, "setter", {value: setter});
+    Object.defineProperty(out, "setter", {value: setter});
     
 
 //
