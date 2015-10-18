@@ -20,7 +20,8 @@
         }
         
         isArray = Array.isArray(a);
-        isArgumentsObject = typeof a === "object" && a.toString() === "[object Arguments]";
+        isArgumentsObject = typeof a === "object" &&
+            Object.prototype.toString.call(a) === "[object Arguments]";
         
         if (isArray || isArgumentsObject) {
             

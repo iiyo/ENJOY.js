@@ -6,6 +6,7 @@
         "enjoy.collections": "src/collections.js",
         "enjoy.comparisons": "src/comparisons.js",
         "enjoy.iteration": "src/iteration.js",
+        "enjoy.data_structures": "src/data-structures.js",
         "enjoy.misc": "src/misc.js"
     }
 }

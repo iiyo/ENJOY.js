@@ -855,6 +855,7 @@ and the collection itself to a reducer function <code>fn</code>.</p>
         <span class="hljs-keyword">return</span> collection[key];
     });
     
+    <span class="hljs-built_in">Object</span>.defineProperty(out, <span class="hljs-string">"at"</span>, {value: at});
     <span class="hljs-built_in">Object</span>.defineProperty(out.core, <span class="hljs-string">"at"</span>, {value: at});</pre></div></div>
             
         </li>
@@ -877,8 +878,8 @@ and the collection itself to a reducer function <code>fn</code>.</p>
         <span class="hljs-keyword">return</span> partial(at, <span class="hljs-literal">undefined</span>, key);
     }
     
-    <span class="hljs-built_in">Object</span>.defineProperty(out.core, <span class="hljs-string">"picker"</span>, {value: picker});
-    <span class="hljs-built_in">Object</span>.defineProperty(out, <span class="hljs-string">"picker"</span>, {value: picker});</pre></div></div>
+    <span class="hljs-built_in">Object</span>.defineProperty(out, <span class="hljs-string">"picker"</span>, {value: picker});
+    <span class="hljs-built_in">Object</span>.defineProperty(out.core, <span class="hljs-string">"picker"</span>, {value: picker});</pre></div></div>
             
         </li>
         
@@ -1018,7 +1019,8 @@ and the collection itself to a reducer function <code>fn</code>.</p>
         }
         
         isArray = <span class="hljs-built_in">Array</span>.isArray(a);
-        isArgumentsObject = <span class="hljs-keyword">typeof</span> a === <span class="hljs-string">"object"</span> &amp;&amp; a.toString() === <span class="hljs-string">"[object Arguments]"</span>;
+        isArgumentsObject = <span class="hljs-keyword">typeof</span> a === <span class="hljs-string">"object"</span> &amp;&amp;
+            <span class="hljs-built_in">Object</span>.prototype.toString.call(a) === <span class="hljs-string">"[object Arguments]"</span>;
         
         <span class="hljs-keyword">if</span> (isArray || isArgumentsObject) {
             
@@ -1164,9 +1166,178 @@ and the collection itself to a reducer function <code>fn</code>.</p>
         }
     }
     
-    <span class="hljs-built_in">Object</span>.defineProperty(out, <span class="hljs-string">"loop"</span>, {value: loop});
+    <span class="hljs-built_in">Object</span>.defineProperty(out, <span class="hljs-string">"loop"</span>, {value: loop});</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-13">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-13">&#182;</a>
+              </div>
+              <p>We use a bit-partitioned vector trie to implement efficient persistent vectors.
+This implementation is pretty much the same as the one by Rich Hickey in the
+Java implementation of Clojure.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    
+    <span class="hljs-keyword">var</span> V_BITS = <span class="hljs-number">5</span>;
+    <span class="hljs-keyword">var</span> V_WIDTH = <span class="hljs-number">1</span> &lt;&lt; V_BITS;
+    <span class="hljs-keyword">var</span> V_MASK = V_WIDTH - <span class="hljs-number">1</span>;
     
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">v</span> (<span class="hljs-params"></span>) </span>{
+        
+        <span class="hljs-keyword">var</span> items = [].slice.call(<span class="hljs-built_in">arguments</span>);
+        <span class="hljs-keyword">var</span> root = v_node();
+        <span class="hljs-keyword">var</span> vec = v_create(<span class="hljs-number">0</span>, <span class="hljs-number">0</span>, root, root);
+        
+        items.forEach(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">item</span>) </span>{
+            vec = v_append(vec, item);
+        });
+        
+        <span class="hljs-keyword">return</span> vec;
+    }
     
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">is_vector</span> (<span class="hljs-params">thing</span>) </span>{
+        <span class="hljs-keyword">return</span> is_object(thing) &amp;&amp; thing.$__type__ === <span class="hljs-string">"vector"</span>;
+    }
+    
+    <span class="hljs-keyword">var</span> t_vector = type(is_vector);
+    
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">v_at</span> (<span class="hljs-params">vec, i</span>) </span>{
+        <span class="hljs-keyword">return</span> v_node_at(vec, i).content[i &amp; V_MASK];
+    }
+    
+    specialize(at, t_vector, v_at);
+    
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">v_node_at</span> (<span class="hljs-params">vec, i</span>) </span>{
+        
+        <span class="hljs-keyword">var</span> level;
+        <span class="hljs-keyword">var</span> node = vec.$__root__;
+        <span class="hljs-keyword">var</span> shift = vec.$__shift__;
+        
+        <span class="hljs-keyword">if</span> (i &gt;= <span class="hljs-number">0</span> &amp;&amp; i &lt; vec.$__count__) {
+            
+            <span class="hljs-keyword">if</span> (i &gt;= v_tail_off(vec)) {
+                <span class="hljs-keyword">return</span> vec.$__tail__;
+            }
+            
+            <span class="hljs-keyword">for</span> (level = shift; level &gt; <span class="hljs-number">0</span>; level -= V_BITS) {
+                node = node.content[(i &gt;&gt;&gt; level) &amp; V_MASK];
+            }
+            
+            <span class="hljs-keyword">return</span> node.content;
+        }
+        
+        <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">RangeError</span>(<span class="hljs-string">"Vector index out of bounds:"</span>, i);
+    }
+    
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">v_tail_off</span> (<span class="hljs-params">vec</span>) </span>{
+        
+        <span class="hljs-keyword">if</span> (vec.$__count__ &lt; V_WIDTH) {
+            <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;
+        }
+        
+        <span class="hljs-keyword">return</span> ((vec.$__count__ - <span class="hljs-number">1</span>) &gt;&gt;&gt; V_BITS) &lt;&lt; V_BITS;
+    }
+    
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">v_create</span> (<span class="hljs-params">count, shift, root, tail</span>) </span>{
+        
+        <span class="hljs-keyword">var</span> vec = <span class="hljs-built_in">Object</span>.create(<span class="hljs-literal">null</span>);
+        
+        <span class="hljs-built_in">Object</span>.defineProperty(vec, <span class="hljs-string">"$__type__"</span>, {value: <span class="hljs-string">"vector"</span>});
+        <span class="hljs-built_in">Object</span>.defineProperty(vec, <span class="hljs-string">"$__count__"</span>, {value: count});
+        <span class="hljs-built_in">Object</span>.defineProperty(vec, <span class="hljs-string">"$__shift__"</span>, {value: shift});
+        <span class="hljs-built_in">Object</span>.defineProperty(vec, <span class="hljs-string">"$__root__"</span>, {value: root});
+        <span class="hljs-built_in">Object</span>.defineProperty(vec, <span class="hljs-string">"$__tail__"</span>, {value: tail});
+        
+        <span class="hljs-keyword">return</span> <span class="hljs-built_in">Object</span>.freeze(vec);
+    }
+    
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">v_append</span> (<span class="hljs-params">vec, value</span>) </span>{
+        
+        <span class="hljs-keyword">var</span> tail = vec.$__tail__;
+        <span class="hljs-keyword">var</span> root = vec.$__root__;
+        <span class="hljs-keyword">var</span> count = vec.$__count__;
+        <span class="hljs-keyword">var</span> shift = vec.$__shift__;
+        <span class="hljs-keyword">var</span> new_tail, new_shift, new_root, expansion;
+        
+        <span class="hljs-keyword">if</span> (tail.content.length &lt; V_WIDTH) {
+            new_tail = v_node(tail.content);
+            new_tail.content.push(value);
+            <span class="hljs-keyword">return</span> v_create(count + <span class="hljs-number">1</span>, shift, root, new_tail);
+        }
+        
+        expansion = {};
+        new_tail = v_node([value]);
+        new_shift = shift;
+        new_root = v_push_tail(shift - V_BITS, root, tail, expansion);
+        
+        <span class="hljs-keyword">if</span> (expansion.val !== <span class="hljs-literal">null</span>) {
+            new_root = v_node([new_root, expansion.val]);
+            new_shift += V_BITS;
+        }
+        
+        <span class="hljs-keyword">return</span> v_create(count + <span class="hljs-number">1</span>, new_shift, new_root, new_tail);
+    }
+    
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">v_push_tail</span> (<span class="hljs-params">level, root, tail, expansion</span>) </span>{
+        
+        <span class="hljs-keyword">var</span> new_child, ret;
+        
+        <span class="hljs-keyword">if</span> (level === <span class="hljs-number">0</span>) {
+            new_child = tail;
+        }
+        <span class="hljs-keyword">else</span> {
+            
+            new_child = v_push_tail(level - V_BITS, v_node(), tail, expansion);
+            
+            <span class="hljs-keyword">if</span> (expansion.val === <span class="hljs-literal">null</span>) {
+                ret = v_node(root.content);
+                ret.push(new_child);
+                <span class="hljs-keyword">return</span> ret;
+            }
+            <span class="hljs-keyword">else</span> {
+                new_child = expansion.val;
+            }
+        }
+        
+        <span class="hljs-keyword">if</span> (root.content.length == V_WIDTH) {
+            expansion.val = v_node([new_child]);
+            <span class="hljs-keyword">return</span> root;
+        }
+        
+        expansion.val = <span class="hljs-literal">null</span>;
+        ret = v_node(root.content);
+        
+        ret.content.push(new_child);
+        
+        <span class="hljs-keyword">return</span> ret;
+    }
+    
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">v_node</span> (<span class="hljs-params">content</span>) </span>{
+        
+        <span class="hljs-keyword">var</span> node = {
+            content: content ? content.slice() : []
+        };
+        
+        <span class="hljs-built_in">Object</span>.defineProperty(node, <span class="hljs-string">"$__type__"</span>, {value: <span class="hljs-string">"v_node"</span>});
+        
+        <span class="hljs-keyword">return</span> <span class="hljs-built_in">Object</span>.freeze(node);
+    }
+    
+    <span class="hljs-built_in">Object</span>.freeze(v);
+    
+    <span class="hljs-built_in">Object</span>.defineProperty(out, <span class="hljs-string">"V_BITS"</span>, {value: V_BITS});
+    <span class="hljs-built_in">Object</span>.defineProperty(out, <span class="hljs-string">"V_WIDTH"</span>, {value: V_WIDTH});
+    <span class="hljs-built_in">Object</span>.defineProperty(out, <span class="hljs-string">"V_MASK"</span>, {value: V_MASK});
+    <span class="hljs-built_in">Object</span>.defineProperty(out, <span class="hljs-string">"v"</span>, {value: v});
+    <span class="hljs-built_in">Object</span>.defineProperty(out, <span class="hljs-string">"is_vector"</span>, {value: is_vector});
+    <span class="hljs-built_in">Object</span>.defineProperty(out, <span class="hljs-string">"t_vector"</span>, {value: t_vector});
+        
     <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">id</span> (<span class="hljs-params">thing</span>) </span>{
         <span class="hljs-keyword">return</span> thing;
     }

@@ -207,6 +207,7 @@
         return collection[key];
     });
     
+    Object.defineProperty(out, "at", {value: at});
     Object.defineProperty(out.core, "at", {value: at});
     
 
@@ -222,8 +223,8 @@
         return partial(at, undefined, key);
     }
     
-    Object.defineProperty(out.core, "picker", {value: picker});
     Object.defineProperty(out, "picker", {value: picker});
+    Object.defineProperty(out.core, "picker", {value: picker});
     
 //
 // ### Function getter(collection)
