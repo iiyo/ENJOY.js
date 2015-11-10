@@ -1,6 +1,6 @@
 {
   "name": "enjoy-js",
-  "version": "15.11.1-preview.1511101658",
+  "version": "15.11.1-preview.1511101757",
   "description": "Functional JavaScript made fun.",
   "keywords": [
       "functional programming",
@@ -9,9 +9,6 @@
       "validation"
   ],
   "main": "index.js",
-  "bin": {
-    "enjoy-js": "enjoy-core.js"
-  },
   "directories": {
     "doc": "docs",
     "test": "tests"
