@@ -1,0 +1,31 @@
+{
+  "name": "enjoy-js",
+  "version": "15.11.1-preview.1511101658",
+  "description": "Functional JavaScript made fun.",
+  "keywords": [
+      "functional programming",
+      "multimethods",
+      "persistent datastructures",
+      "validation"
+  ],
+  "main": "index.js",
+  "bin": {
+    "enjoy-js": "enjoy-core.js"
+  },
+  "directories": {
+    "doc": "docs",
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "mocha tests/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/iiyo/ENJOY.js.git"
+  },
+  "author": "J. Steinbeck <mail@steinbeck.it> (https://steinbeck.it)",
+  "license": "BSD-3-Clause",
+  "bugs": {
+    "url": "https://github.com/iiyo/ENJOY.js/issues"
+  }
+}
