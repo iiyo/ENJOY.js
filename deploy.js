@@ -87,7 +87,7 @@ function writeFileFn (contents, fileNameBase) {
     mkdirSync('./bin');
     fs.writeFile('./bin/' + fileNameBase + '.js', contents, makeErrorFn('File created.'));
     
-    minify({ext: '.js', data: contents}, function(error, data) {
+    minify('./bin/' + fileNameBase + '.js', function(error, data) {
         if (error) {
             console.log(error);
         }
