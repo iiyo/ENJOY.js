@@ -6,8 +6,6 @@
     
     function method (defaultFn) {
         
-        var dispatchers = [].slice.call(arguments, 1);
-        
         function fn () {
             
             var argsLength = arguments.length;
@@ -101,10 +99,6 @@
         });
         
         Object.defineProperty(fn, "$__type__", {value: "method"});
-        
-        dispatchers.unshift(fn);
-        
-        apply(dispatch, dispatchers);
         
         return fn;
     }
