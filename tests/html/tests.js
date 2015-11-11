@@ -174,4 +174,52 @@
     
     console.log("is_a(some_other_object, some_object):", e.is_a(some_other_object, some_object));
     
+    console.log("---------------------");
+    
+    // Define a multimethod with a default implementation:
+    var hello = e.method(function () {
+        return "Hello!";
+    });
+    
+    e.specialize(hello, is_person, is_english, function (person) {
+        return "Hello " + person.name + "!";
+    });
+    
+    e.specialize(hello, is_person, is_german, function (person) {
+        return "Guten Tag, " + person.name + "!";
+    });
+    
+    e.specialize(hello, is_person, "ja_JP", function (person) {
+        return "今日は, " + person.name + "さん！";
+    });
+    
+    // Calling the multimethod:
+    console.log(hello());
+    console.log(hello(person("Pete"), "en_US")); // "Hello Pete!"
+    console.log(hello(person("Douglas"), "en_GB")); // "Hello Douglas!"
+    console.log(hello(person("Jonathan"), "de_DE")); // "Guten Tag, Jonathan!"
+    
+    
+    // Some predicate functions:
+    
+    function is_person (thing) {
+        return e.is_object(thing) && thing.type === "person";
+    }
+    
+    function is_english (code) {
+        return code.match(/^en/);
+    }
+    
+    function is_german (code) {
+        return code.match(/^de/);
+    }
+    
+    // Function that creates persons:
+    function person (name) {
+        return {
+            type: "person",
+            name: name
+        };
+    }
+    
 }());
