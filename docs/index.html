@@ -336,6 +336,14 @@
         <span class="hljs-keyword">return</span> <span class="hljs-keyword">typeof</span> a === <span class="hljs-string">"number"</span>;
     }
     
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">is_integer</span> (<span class="hljs-params">n</span>) </span>{
+        <span class="hljs-keyword">return</span> is_number(n) &amp;&amp; n % <span class="hljs-number">1</span> === <span class="hljs-number">0</span>;
+    }
+    
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">is_float</span> (<span class="hljs-params">n</span>) </span>{
+        <span class="hljs-keyword">return</span> is_number(n) &amp;&amp; n % <span class="hljs-number">1</span> !== <span class="hljs-number">0</span>;
+    }
+    
     <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">is_string</span> (<span class="hljs-params">a</span>) </span>{
         <span class="hljs-keyword">return</span> <span class="hljs-keyword">typeof</span> a === <span class="hljs-string">"string"</span>;
     }
@@ -539,8 +547,8 @@
     <span class="hljs-keyword">var</span> t_string = type(is_string);
     
     <span class="hljs-keyword">var</span> t_number = type(is_number);
-    <span class="hljs-keyword">var</span> t_float = type(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">n</span>) </span>{ <span class="hljs-keyword">return</span> is_number(n) &amp;&amp; n % <span class="hljs-number">1</span> !== <span class="hljs-number">0</span>; });
-    <span class="hljs-keyword">var</span> t_integer = type(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">n</span>) </span>{ <span class="hljs-keyword">return</span> is_number(n) &amp;&amp; n % <span class="hljs-number">1</span> === <span class="hljs-number">0</span>; });
+    <span class="hljs-keyword">var</span> t_float = type(is_float);
+    <span class="hljs-keyword">var</span> t_integer = type(is_integer);
     
     <span class="hljs-keyword">var</span> t_object = type(is_object);
     <span class="hljs-keyword">var</span> t_array = type(is_array);
@@ -572,6 +580,8 @@
     <span class="hljs-built_in">Object</span>.defineProperty(out, <span class="hljs-string">"is_undefined"</span>, {value: is_undefined});
     <span class="hljs-built_in">Object</span>.defineProperty(out, <span class="hljs-string">"is_boolean"</span>, {value: is_boolean});
     <span class="hljs-built_in">Object</span>.defineProperty(out, <span class="hljs-string">"is_number"</span>, {value: is_number});
+    <span class="hljs-built_in">Object</span>.defineProperty(out, <span class="hljs-string">"is_integer"</span>, {value: is_integer});
+    <span class="hljs-built_in">Object</span>.defineProperty(out, <span class="hljs-string">"is_float"</span>, {value: is_float});
     <span class="hljs-built_in">Object</span>.defineProperty(out, <span class="hljs-string">"is_string"</span>, {value: is_string});
     <span class="hljs-built_in">Object</span>.defineProperty(out, <span class="hljs-string">"is_char"</span>, {value: is_char});
     <span class="hljs-built_in">Object</span>.defineProperty(out, <span class="hljs-string">"is_colllection"</span>, {value: is_collection});

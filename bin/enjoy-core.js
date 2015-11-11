@@ -304,6 +304,14 @@
         return typeof a === "number";
     }
     
+    function is_integer (n) {
+        return is_number(n) && n % 1 === 0;
+    }
+    
+    function is_float (n) {
+        return is_number(n) && n % 1 !== 0;
+    }
+    
     function is_string (a) {
         return typeof a === "string";
     }
@@ -507,8 +515,8 @@
     var t_string = type(is_string);
     
     var t_number = type(is_number);
-    var t_float = type(function (n) { return is_number(n) && n % 1 !== 0; });
-    var t_integer = type(function (n) { return is_number(n) && n % 1 === 0; });
+    var t_float = type(is_float);
+    var t_integer = type(is_integer);
     
     var t_object = type(is_object);
     var t_array = type(is_array);
@@ -540,6 +548,8 @@
     Object.defineProperty(out, "is_undefined", {value: is_undefined});
     Object.defineProperty(out, "is_boolean", {value: is_boolean});
     Object.defineProperty(out, "is_number", {value: is_number});
+    Object.defineProperty(out, "is_integer", {value: is_integer});
+    Object.defineProperty(out, "is_float", {value: is_float});
     Object.defineProperty(out, "is_string", {value: is_string});
     Object.defineProperty(out, "is_char", {value: is_char});
     Object.defineProperty(out, "is_colllection", {value: is_collection});
