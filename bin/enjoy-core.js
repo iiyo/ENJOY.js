@@ -34,7 +34,7 @@
                 allArgs.push(arguments[i]);
             }
             
-            fn.apply(undefined, allArgs);
+            return fn.apply(undefined, allArgs);
         };
     }
     
