@@ -9,6 +9,32 @@ ENJOY is a JavaScript library meant to make programming JavaScript in a function
 - Defining simple schemas and validating data according to these schemas (minus the suckiness of XML Schema and the like)
 - Higher-order functions that help you with composition
 
+## Installation
+
+Install using NPM:
+
+    npm install enjoy-js
+
+On the frontend, you can use ENJOY with either [using.js](https://github.com/iiyo/using.js):
+
+```html
+<script src="path/to/enjoy/bin/enjoy.min.js"></script>
+```
+
+```javascript
+using("enjoy").run(function (enjoy) { /* ... */ });
+```
+
+Or without it:
+
+```html
+<script src="path/to/enjoy/bin/enjoy-core.min.js"></script>
+```
+
+```javascript
+enjoy.is_number(1.12);
+```
+
 ## Usage examples
 
 ### Iteration
