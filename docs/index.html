@@ -859,8 +859,7 @@ and the collection itself to a reducer function <code>fn</code>.</p>
         <span class="hljs-keyword">return</span> collection[key];
     });
     
-    <span class="hljs-built_in">Object</span>.defineProperty(out, <span class="hljs-string">"at"</span>, {value: at});
-    <span class="hljs-built_in">Object</span>.defineProperty(out.core, <span class="hljs-string">"at"</span>, {value: at});</pre></div></div>
+    <span class="hljs-built_in">Object</span>.defineProperty(out, <span class="hljs-string">"at"</span>, {value: at});</pre></div></div>
             
         </li>
         
@@ -882,8 +881,7 @@ and the collection itself to a reducer function <code>fn</code>.</p>
         <span class="hljs-keyword">return</span> partial(at, <span class="hljs-literal">undefined</span>, key);
     }
     
-    <span class="hljs-built_in">Object</span>.defineProperty(out, <span class="hljs-string">"picker"</span>, {value: picker});
-    <span class="hljs-built_in">Object</span>.defineProperty(out.core, <span class="hljs-string">"picker"</span>, {value: picker});</pre></div></div>
+    <span class="hljs-built_in">Object</span>.defineProperty(out, <span class="hljs-string">"picker"</span>, {value: picker});</pre></div></div>
             
         </li>
         
@@ -905,7 +903,6 @@ and the collection itself to a reducer function <code>fn</code>.</p>
         <span class="hljs-keyword">return</span> bind(at, collection);
     }
     
-    <span class="hljs-built_in">Object</span>.defineProperty(out.core, <span class="hljs-string">"getter"</span>, {value: getter});
     <span class="hljs-built_in">Object</span>.defineProperty(out, <span class="hljs-string">"getter"</span>, {value: getter});</pre></div></div>
             
         </li>
@@ -929,7 +926,7 @@ and the collection itself to a reducer function <code>fn</code>.</p>
         <span class="hljs-keyword">return</span> collection;
     });
     
-    <span class="hljs-built_in">Object</span>.defineProperty(out.core, <span class="hljs-string">"put"</span>, {value: put});</pre></div></div>
+    <span class="hljs-built_in">Object</span>.defineProperty(out, <span class="hljs-string">"put"</span>, {value: put});</pre></div></div>
             
         </li>
         
@@ -951,7 +948,6 @@ and the collection itself to a reducer function <code>fn</code>.</p>
         <span class="hljs-keyword">return</span> partial(put, <span class="hljs-literal">undefined</span>, key, <span class="hljs-literal">undefined</span>);
     }
     
-    <span class="hljs-built_in">Object</span>.defineProperty(out.core, <span class="hljs-string">"putter"</span>, {value: putter});
     <span class="hljs-built_in">Object</span>.defineProperty(out, <span class="hljs-string">"putter"</span>, {value: putter});</pre></div></div>
             
         </li>
@@ -974,7 +970,6 @@ and the collection itself to a reducer function <code>fn</code>.</p>
         <span class="hljs-keyword">return</span> bind(put, collection);
     }
     
-    <span class="hljs-built_in">Object</span>.defineProperty(out.core, <span class="hljs-string">"setter"</span>, {value: setter});
     <span class="hljs-built_in">Object</span>.defineProperty(out, <span class="hljs-string">"setter"</span>, {value: setter});</pre></div></div>
             
         </li>
@@ -999,7 +994,6 @@ and the collection itself to a reducer function <code>fn</code>.</p>
         });
     }
     
-    <span class="hljs-built_in">Object</span>.defineProperty(out.core, <span class="hljs-string">"values"</span>, {value: values});
     <span class="hljs-built_in">Object</span>.defineProperty(out, <span class="hljs-string">"values"</span>, {value: values});
         
     <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">identical</span> (<span class="hljs-params">a, b</span>) </span>{

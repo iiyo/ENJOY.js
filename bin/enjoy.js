@@ -1200,7 +1200,6 @@ using.ajax = (function () {
     });
     
     Object.defineProperty(out, "at", {value: at});
-    Object.defineProperty(out.core, "at", {value: at});
     
 
 //
@@ -1216,7 +1215,6 @@ using.ajax = (function () {
     }
     
     Object.defineProperty(out, "picker", {value: picker});
-    Object.defineProperty(out.core, "picker", {value: picker});
     
 //
 // ### Function getter(collection)
@@ -1230,7 +1228,6 @@ using.ajax = (function () {
         return bind(at, collection);
     }
     
-    Object.defineProperty(out.core, "getter", {value: getter});
     Object.defineProperty(out, "getter", {value: getter});
     
 
@@ -1247,7 +1244,7 @@ using.ajax = (function () {
         return collection;
     });
     
-    Object.defineProperty(out.core, "put", {value: put});
+    Object.defineProperty(out, "put", {value: put});
     
 
 //
@@ -1262,7 +1259,6 @@ using.ajax = (function () {
         return partial(put, undefined, key, undefined);
     }
     
-    Object.defineProperty(out.core, "putter", {value: putter});
     Object.defineProperty(out, "putter", {value: putter});
     
 
@@ -1278,7 +1274,6 @@ using.ajax = (function () {
         return bind(put, collection);
     }
     
-    Object.defineProperty(out.core, "setter", {value: setter});
     Object.defineProperty(out, "setter", {value: setter});
     
 
@@ -1296,7 +1291,6 @@ using.ajax = (function () {
         });
     }
     
-    Object.defineProperty(out.core, "values", {value: values});
     Object.defineProperty(out, "values", {value: values});
         
     function identical (a, b) {
