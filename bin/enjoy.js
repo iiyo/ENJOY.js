@@ -576,7 +576,7 @@ using.ajax = (function () {
                         return true;
                     }
                     
-                    if (is_a(dispatchValue, comparator)) {
+                    if (isA(dispatchValue, comparator)) {
                         currentScore += METHOD_PRECEDENCE_SCORE_IS_A * argumentOrderModificator;
                         return true;
                     }
@@ -700,81 +700,81 @@ using.ajax = (function () {
     
     Object.defineProperty(out, "specialize", {value: specialize});
         
-    function is_null (a) {
+    function isNull (a) {
         return a === null;
     }
     
-    function is_undefined (a) {
+    function isUndefined (a) {
         return typeof a === "undefined";
     }
     
-    function is_boolean (a) {
+    function isBoolean (a) {
         return typeof a === "boolean";
     }
     
-    function is_number (a) {
+    function isNumber (a) {
         return typeof a === "number";
     }
     
-    function is_integer (n) {
-        return is_number(n) && n % 1 === 0;
+    function isInteger (n) {
+        return isNumber(n) && n % 1 === 0;
     }
     
-    function is_float (n) {
-        return is_number(n) && n % 1 !== 0;
+    function isFloat (n) {
+        return isNumber(n) && n % 1 !== 0;
     }
     
-    function is_string (a) {
+    function isString (a) {
         return typeof a === "string";
     }
     
-    function is_char (a) {
-        return is_string(a) && a.length === 1;
+    function isChar (a) {
+        return isString(a) && a.length === 1;
     }
     
-    function is_collection (a) {
-        return is_object(a) || is_array(a);
+    function isCollection (a) {
+        return isObject(a) || isArray(a);
     }
     
-    function is_object (a) {
+    function isObject (a) {
         return typeof a === "object" && a !== null;
     }
     
-    function is_array (a) {
+    function isArray (a) {
         return Array.isArray(a);
     }
     
-    function is_function (a) {
+    function isFunction (a) {
         return typeof a === "function";
     }
     
-    function is_primitive (a) {
-        return is_null(a) || is_undefined(a) || is_number(a) || is_string(a) || is_boolean(a);
+    function isPrimitive (a) {
+        return isNull(a) || isUndefined(a) || isNumber(a) || isString(a) || isBoolean(a);
     }
     
-    function is_type (a) {
-        return is_object(a) && a.$__type__ === "type";
+    function isType (a) {
+        return isObject(a) && a.$__type__ === "type";
     }
     
-    function is_derivable (a) {
-        return is_object(a) && "$__children__" in a && Array.isArray(a.$__children__);
+    function isDerivable (a) {
+        return isObject(a) && "$__children__" in a && Array.isArray(a.$__children__);
     }
     
-    function is_method (a) {
-        return is_object(a) && a.$__type__ === "method";
+    function isMethod (a) {
+        return isObject(a) && a.$__type__ === "method";
     }
     
     function valid (data, schema) {
         
         var key;
         
-        if (!is_object(data)) {
+        if (!isObject(data)) {
             
-            if (is_type(schema)) {
-                return is_a(data, schema);
+            if (isType(schema)) {
+                return isA(data, schema);
             }
             
-            if (is_function(schema)) {
+            if (isFunction(schema)) {
                 return schema(data);
             }
             
@@ -784,16 +784,16 @@ using.ajax = (function () {
             
             for (key in schema) {
                 
-                if (is_type(schema[key])) {
+                if (isType(schema[key])) {
                     
-                    if (!is_a(data[key], schema[key])) {
+                    if (!isA(data[key], schema[key])) {
                         return false;
                     }
                     
                     continue;
                 }
                 
-                if (is_function(schema[key])) {
+                if (isFunction(schema[key])) {
                     
                     if (!schema[key](data[key])) {
                         return false;
@@ -802,7 +802,7 @@ using.ajax = (function () {
                     continue;
                 }
                 
-                if (is_object(schema[key])) {
+                if (isObject(schema[key])) {
                     
                     if (!valid(data[key], schema[key])) {
                         return false;
@@ -832,23 +832,23 @@ using.ajax = (function () {
             checker = function () { return false; };
         }
         
-        if (!is_function(checker)) {
+        if (!isFunction(checker)) {
             checker = validator(checker);
         }
         
         Object.defineProperty(obj, "$__type__", {value: "type"});
         Object.defineProperty(obj, "toString", {value: function () { return "[object Type]"; }});
         Object.defineProperty(obj, "$__checker__", {value: checker});
-        make_derivable(obj);
+        makeDerivable(obj);
         
         Object.freeze(obj);
         
         return obj;
     }
     
-    function make_derivable (obj) {
+    function makeDerivable (obj) {
         
-        if (!is_object(obj) || !Object.isExtensible(obj)) {
+        if (!isObject(obj) || !Object.isExtensible(obj)) {
             throw new TypeError("Argument 'obj' is not derivable in call to make_derivable(obj).");
         }
         
@@ -857,39 +857,39 @@ using.ajax = (function () {
     
     function derive (child, parent) {
         
-        if (!is_derivable(child)) {
-            make_derivable(child);
+        if (!isDerivable(child)) {
+            makeDerivable(child);
         }
         
-        if (!is_derivable(parent)) {
-            make_derivable(parent);
+        if (!isDerivable(parent)) {
+            makeDerivable(parent);
         }
         
-        if (descendant_of(child, parent)) {
+        if (descendantOf(child, parent)) {
             throw new Error("Child is already a descendent of this parent.");
         }
         
         parent.$__children__.push(child);
     }
     
-    function descendant_of (a, b) {
+    function descendantOf (a, b) {
         
-        if (!is_derivable(a)) {
+        if (!isDerivable(a)) {
             throw new TypeError("Parameter 'a' must be derivable.");
         }
         
-        if (!is_derivable(b)) {
+        if (!isDerivable(b)) {
             throw new TypeError("Parameter 'b' must be derivable.");
         }
         
         return b.$__children__.some(function (c) {
-            return (c === a ? true : c.$__children__.some(bind(descendant_of, a)));
+            return (c === a ? true : c.$__children__.some(bind(descendantOf, a)));
         });
     }
     
-    function is_a (a, t) {
+    function isA (a, t) {
         
-        if (!is_derivable(t)) {
+        if (!isDerivable(t)) {
             
             if (typeof t !== "function") {
                 return false;
@@ -898,11 +898,11 @@ using.ajax = (function () {
             return a instanceof t;
         }
         
-        if (is_derivable(a) && descendant_of(a, t)) {
+        if (isDerivable(a) && descendantOf(a, t)) {
             return true;
         }
         
-        if (!is_type(t)) {
+        if (!isType(t)) {
             return false;
         }
         
@@ -911,29 +911,29 @@ using.ajax = (function () {
         }
         
         return t.$__children__.some(function (child) {
-            return is_a(a, child);
+            return isA(a, child);
         });
     }
     
-    var t_primitive = type(is_primitive);
-    var t_composite = type(is_object);
+    var t_primitive = type(isPrimitive);
+    var t_composite = type(isObject);
     
-    var t_null = type(is_null);
-    var t_undefined = type(is_undefined);
+    var t_null = type(isNull);
+    var t_undefined = type(isUndefined);
     
-    var t_boolean = type(is_boolean);
+    var t_boolean = type(isBoolean);
     
-    var t_char = type(is_char);
-    var t_string = type(is_string);
+    var t_char = type(isChar);
+    var t_string = type(isString);
     
-    var t_number = type(is_number);
-    var t_float = type(is_float);
-    var t_integer = type(is_integer);
+    var t_number = type(isNumber);
+    var t_float = type(isFloat);
+    var t_integer = type(isInteger);
     
-    var t_object = type(is_object);
-    var t_array = type(is_array);
+    var t_object = type(isObject);
+    var t_array = type(isArray);
     
-    var t_function = type(is_function);
+    var t_function = type(isFunction);
     
     derive(t_null, t_primitive);
     derive(t_undefined, t_primitive);
@@ -951,27 +951,27 @@ using.ajax = (function () {
     
     Object.defineProperty(out, "type", {value: type});
     Object.defineProperty(out, "derive", {value: derive});
-    Object.defineProperty(out, "make_derivable", {value: make_derivable});
+    Object.defineProperty(out, "makeDerivable", {value: makeDerivable});
     Object.defineProperty(out, "valid", {value: valid});
     Object.defineProperty(out, "validator", {value: validator});
     
-    Object.defineProperty(out, "is_a", {value: is_a});
-    Object.defineProperty(out, "is_null", {value: is_null});
-    Object.defineProperty(out, "is_undefined", {value: is_undefined});
-    Object.defineProperty(out, "is_boolean", {value: is_boolean});
-    Object.defineProperty(out, "is_number", {value: is_number});
-    Object.defineProperty(out, "is_integer", {value: is_integer});
-    Object.defineProperty(out, "is_float", {value: is_float});
-    Object.defineProperty(out, "is_string", {value: is_string});
-    Object.defineProperty(out, "is_char", {value: is_char});
-    Object.defineProperty(out, "is_colllection", {value: is_collection});
-    Object.defineProperty(out, "is_object", {value: is_object});
-    Object.defineProperty(out, "is_array", {value: is_array});
-    Object.defineProperty(out, "is_function", {value: is_function});
-    Object.defineProperty(out, "is_primitive", {value: is_primitive});
-    Object.defineProperty(out, "is_type", {value: is_type});
-    Object.defineProperty(out, "is_derivable", {value: is_derivable});
-    Object.defineProperty(out, "is_method", {value: is_method});
+    Object.defineProperty(out, "isA", {value: isA});
+    Object.defineProperty(out, "isNull", {value: isNull});
+    Object.defineProperty(out, "isUndefined", {value: isUndefined});
+    Object.defineProperty(out, "isBoolean", {value: isBoolean});
+    Object.defineProperty(out, "isNumber", {value: isNumber});
+    Object.defineProperty(out, "isInteger", {value: isInteger});
+    Object.defineProperty(out, "isFloat", {value: isFloat});
+    Object.defineProperty(out, "isString", {value: isString});
+    Object.defineProperty(out, "isChar", {value: isChar});
+    Object.defineProperty(out, "isColllection", {value: isCollection});
+    Object.defineProperty(out, "isObject", {value: isObject});
+    Object.defineProperty(out, "isArray", {value: isArray});
+    Object.defineProperty(out, "isFunction", {value: isFunction});
+    Object.defineProperty(out, "isPrimitive", {value: isPrimitive});
+    Object.defineProperty(out, "isType", {value: isType});
+    Object.defineProperty(out, "isDerivable", {value: isDerivable});
+    Object.defineProperty(out, "isMethod", {value: isMethod});
     
     Object.defineProperty(out, "t_primitive", {value: t_primitive});
     Object.defineProperty(out, "t_composite", {value: t_composite});
@@ -1364,7 +1364,7 @@ using.ajax = (function () {
                 }
             }
             
-            if (some(out.hidden_properties, function (key) { return a[key] !== b[key]; })) {
+            if (some(out.hiddenProperties, function (key) { return a[key] !== b[key]; })) {
                 return false;
             }
             
@@ -1386,7 +1386,7 @@ using.ajax = (function () {
         }
     });
     
-    specialize(each, is_array, function (collection, fn) {
+    specialize(each, isArray, function (collection, fn) {
         return collection.forEach(fn);
     });
     
@@ -1494,19 +1494,19 @@ using.ajax = (function () {
         return vec;
     }
     
-    function is_vector (thing) {
-        return is_object(thing) && thing.$__type__ === "vector";
+    function isVector (thing) {
+        return isObject(thing) && thing.$__type__ === "vector";
     }
     
-    var t_vector = type(is_vector);
+    var t_vector = type(isVector);
     
     function v_at (vec, i) {
-        return v_node_at(vec, i).content[i & V_MASK];
+        return v_nodeAt(vec, i).content[i & V_MASK];
     }
     
     specialize(at, t_vector, v_at);
     
-    function v_node_at (vec, i) {
+    function v_nodeAt (vec, i) {
         
         var level;
         var node = vec.$__root__;
@@ -1514,7 +1514,7 @@ using.ajax = (function () {
         
         if (i >= 0 && i < vec.$__count__) {
             
-            if (i >= v_tail_off(vec)) {
+            if (i >= v_tailOff(vec)) {
                 return vec.$__tail__;
             }
             
@@ -1528,7 +1528,7 @@ using.ajax = (function () {
         throw new RangeError("Vector index out of bounds:", i);
     }
     
-    function v_tail_off (vec) {
+    function v_tailOff (vec) {
         
         if (vec.$__count__ < V_WIDTH) {
             return 0;
@@ -1556,28 +1556,28 @@ using.ajax = (function () {
         var root = vec.$__root__;
         var count = vec.$__count__;
         var shift = vec.$__shift__;
-        var new_tail, new_shift, new_root, expansion;
+        var newTail, newShift, newRoot, expansion;
         
         if (tail.content.length < V_WIDTH) {
-            new_tail = v_node(tail.content);
-            new_tail.content.push(value);
-            return v_create(count + 1, shift, root, new_tail);
+            newTail = v_node(tail.content);
+            newTail.content.push(value);
+            return v_create(count + 1, shift, root, newTail);
         }
         
         expansion = {};
-        new_tail = v_node([value]);
-        new_shift = shift;
-        new_root = v_push_tail(shift - V_BITS, root, tail, expansion);
+        newTail = v_node([value]);
+        newShift = shift;
+        newRoot = v_pushTail(shift - V_BITS, root, tail, expansion);
         
         if (expansion.val !== null) {
-            new_root = v_node([new_root, expansion.val]);
-            new_shift += V_BITS;
+            newRoot = v_node([newRoot, expansion.val]);
+            newShift += V_BITS;
         }
         
-        return v_create(count + 1, new_shift, new_root, new_tail);
+        return v_create(count + 1, newShift, newRoot, newTail);
     }
     
-    function v_push_tail (level, root, tail, expansion) {
+    function v_pushTail (level, root, tail, expansion) {
         
         var new_child, ret;
         
@@ -1586,7 +1586,7 @@ using.ajax = (function () {
         }
         else {
             
-            new_child = v_push_tail(level - V_BITS, v_node(), tail, expansion);
+            new_child = v_pushTail(level - V_BITS, v_node(), tail, expansion);
             
             if (expansion.val === null) {
                 ret = v_node(root.content);
@@ -1628,7 +1628,7 @@ using.ajax = (function () {
     Object.defineProperty(out, "V_WIDTH", {value: V_WIDTH});
     Object.defineProperty(out, "V_MASK", {value: V_MASK});
     Object.defineProperty(out, "v", {value: v});
-    Object.defineProperty(out, "is_vector", {value: is_vector});
+    Object.defineProperty(out, "isVector", {value: isVector});
     Object.defineProperty(out, "t_vector", {value: t_vector});
         
     function id (thing) {

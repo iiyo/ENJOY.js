@@ -196,7 +196,7 @@
                         <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;
                     }
                     
-                    <span class="hljs-keyword">if</span> (is_a(dispatchValue, comparator)) {
+                    <span class="hljs-keyword">if</span> (isA(dispatchValue, comparator)) {
                         currentScore += METHOD_PRECEDENCE_SCORE_IS_A * argumentOrderModificator;
                         <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;
                     }
@@ -320,81 +320,81 @@
     
     <span class="hljs-built_in">Object</span>.defineProperty(out, <span class="hljs-string">"specialize"</span>, {value: specialize});
         
-    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">is_null</span> (<span class="hljs-params">a</span>) </span>{
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">isNull</span> (<span class="hljs-params">a</span>) </span>{
         <span class="hljs-keyword">return</span> a === <span class="hljs-literal">null</span>;
     }
     
-    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">is_undefined</span> (<span class="hljs-params">a</span>) </span>{
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">isUndefined</span> (<span class="hljs-params">a</span>) </span>{
         <span class="hljs-keyword">return</span> <span class="hljs-keyword">typeof</span> a === <span class="hljs-string">"undefined"</span>;
     }
     
-    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">is_boolean</span> (<span class="hljs-params">a</span>) </span>{
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">isBoolean</span> (<span class="hljs-params">a</span>) </span>{
         <span class="hljs-keyword">return</span> <span class="hljs-keyword">typeof</span> a === <span class="hljs-string">"boolean"</span>;
     }
     
-    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">is_number</span> (<span class="hljs-params">a</span>) </span>{
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">isNumber</span> (<span class="hljs-params">a</span>) </span>{
         <span class="hljs-keyword">return</span> <span class="hljs-keyword">typeof</span> a === <span class="hljs-string">"number"</span>;
     }
     
-    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">is_integer</span> (<span class="hljs-params">n</span>) </span>{
-        <span class="hljs-keyword">return</span> is_number(n) &amp;&amp; n % <span class="hljs-number">1</span> === <span class="hljs-number">0</span>;
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">isInteger</span> (<span class="hljs-params">n</span>) </span>{
+        <span class="hljs-keyword">return</span> isNumber(n) &amp;&amp; n % <span class="hljs-number">1</span> === <span class="hljs-number">0</span>;
     }
     
-    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">is_float</span> (<span class="hljs-params">n</span>) </span>{
-        <span class="hljs-keyword">return</span> is_number(n) &amp;&amp; n % <span class="hljs-number">1</span> !== <span class="hljs-number">0</span>;
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">isFloat</span> (<span class="hljs-params">n</span>) </span>{
+        <span class="hljs-keyword">return</span> isNumber(n) &amp;&amp; n % <span class="hljs-number">1</span> !== <span class="hljs-number">0</span>;
     }
     
-    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">is_string</span> (<span class="hljs-params">a</span>) </span>{
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">isString</span> (<span class="hljs-params">a</span>) </span>{
         <span class="hljs-keyword">return</span> <span class="hljs-keyword">typeof</span> a === <span class="hljs-string">"string"</span>;
     }
     
-    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">is_char</span> (<span class="hljs-params">a</span>) </span>{
-        <span class="hljs-keyword">return</span> is_string(a) &amp;&amp; a.length === <span class="hljs-number">1</span>;
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">isChar</span> (<span class="hljs-params">a</span>) </span>{
+        <span class="hljs-keyword">return</span> isString(a) &amp;&amp; a.length === <span class="hljs-number">1</span>;
     }
     
-    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">is_collection</span> (<span class="hljs-params">a</span>) </span>{
-        <span class="hljs-keyword">return</span> is_object(a) || is_array(a);
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">isCollection</span> (<span class="hljs-params">a</span>) </span>{
+        <span class="hljs-keyword">return</span> isObject(a) || isArray(a);
     }
     
-    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">is_object</span> (<span class="hljs-params">a</span>) </span>{
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">isObject</span> (<span class="hljs-params">a</span>) </span>{
         <span class="hljs-keyword">return</span> <span class="hljs-keyword">typeof</span> a === <span class="hljs-string">"object"</span> &amp;&amp; a !== <span class="hljs-literal">null</span>;
     }
     
-    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">is_array</span> (<span class="hljs-params">a</span>) </span>{
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">isArray</span> (<span class="hljs-params">a</span>) </span>{
         <span class="hljs-keyword">return</span> <span class="hljs-built_in">Array</span>.isArray(a);
     }
     
-    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">is_function</span> (<span class="hljs-params">a</span>) </span>{
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">isFunction</span> (<span class="hljs-params">a</span>) </span>{
         <span class="hljs-keyword">return</span> <span class="hljs-keyword">typeof</span> a === <span class="hljs-string">"function"</span>;
     }
     
-    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">is_primitive</span> (<span class="hljs-params">a</span>) </span>{
-        <span class="hljs-keyword">return</span> is_null(a) || is_undefined(a) || is_number(a) || is_string(a) || is_boolean(a);
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">isPrimitive</span> (<span class="hljs-params">a</span>) </span>{
+        <span class="hljs-keyword">return</span> isNull(a) || isUndefined(a) || isNumber(a) || isString(a) || isBoolean(a);
     }
     
-    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">is_type</span> (<span class="hljs-params">a</span>) </span>{
-        <span class="hljs-keyword">return</span> is_object(a) &amp;&amp; a.$__type__ === <span class="hljs-string">"type"</span>;
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">isType</span> (<span class="hljs-params">a</span>) </span>{
+        <span class="hljs-keyword">return</span> isObject(a) &amp;&amp; a.$__type__ === <span class="hljs-string">"type"</span>;
     }
     
-    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">is_derivable</span> (<span class="hljs-params">a</span>) </span>{
-        <span class="hljs-keyword">return</span> is_object(a) &amp;&amp; <span class="hljs-string">"$__children__"</span> <span class="hljs-keyword">in</span> a &amp;&amp; <span class="hljs-built_in">Array</span>.isArray(a.$__children__);
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">isDerivable</span> (<span class="hljs-params">a</span>) </span>{
+        <span class="hljs-keyword">return</span> isObject(a) &amp;&amp; <span class="hljs-string">"$__children__"</span> <span class="hljs-keyword">in</span> a &amp;&amp; <span class="hljs-built_in">Array</span>.isArray(a.$__children__);
     }
     
-    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">is_method</span> (<span class="hljs-params">a</span>) </span>{
-        <span class="hljs-keyword">return</span> is_object(a) &amp;&amp; a.$__type__ === <span class="hljs-string">"method"</span>;
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">isMethod</span> (<span class="hljs-params">a</span>) </span>{
+        <span class="hljs-keyword">return</span> isObject(a) &amp;&amp; a.$__type__ === <span class="hljs-string">"method"</span>;
     }
     
     <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">valid</span> (<span class="hljs-params">data, schema</span>) </span>{
         
         <span class="hljs-keyword">var</span> key;
         
-        <span class="hljs-keyword">if</span> (!is_object(data)) {
+        <span class="hljs-keyword">if</span> (!isObject(data)) {
             
-            <span class="hljs-keyword">if</span> (is_type(schema)) {
-                <span class="hljs-keyword">return</span> is_a(data, schema);
+            <span class="hljs-keyword">if</span> (isType(schema)) {
+                <span class="hljs-keyword">return</span> isA(data, schema);
             }
             
-            <span class="hljs-keyword">if</span> (is_function(schema)) {
+            <span class="hljs-keyword">if</span> (isFunction(schema)) {
                 <span class="hljs-keyword">return</span> schema(data);
             }
             
@@ -404,16 +404,16 @@
             
             <span class="hljs-keyword">for</span> (key <span class="hljs-keyword">in</span> schema) {
                 
-                <span class="hljs-keyword">if</span> (is_type(schema[key])) {
+                <span class="hljs-keyword">if</span> (isType(schema[key])) {
                     
-                    <span class="hljs-keyword">if</span> (!is_a(data[key], schema[key])) {
+                    <span class="hljs-keyword">if</span> (!isA(data[key], schema[key])) {
                         <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;
                     }
                     
                     <span class="hljs-keyword">continue</span>;
                 }
                 
-                <span class="hljs-keyword">if</span> (is_function(schema[key])) {
+                <span class="hljs-keyword">if</span> (isFunction(schema[key])) {
                     
                     <span class="hljs-keyword">if</span> (!schema[key](data[key])) {
                         <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;
@@ -422,7 +422,7 @@
                     <span class="hljs-keyword">continue</span>;
                 }
                 
-                <span class="hljs-keyword">if</span> (is_object(schema[key])) {
+                <span class="hljs-keyword">if</span> (isObject(schema[key])) {
                     
                     <span class="hljs-keyword">if</span> (!valid(data[key], schema[key])) {
                         <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;
@@ -452,23 +452,23 @@
             checker = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{ <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>; };
         }
         
-        <span class="hljs-keyword">if</span> (!is_function(checker)) {
+        <span class="hljs-keyword">if</span> (!isFunction(checker)) {
             checker = validator(checker);
         }
         
         <span class="hljs-built_in">Object</span>.defineProperty(obj, <span class="hljs-string">"$__type__"</span>, {value: <span class="hljs-string">"type"</span>});
         <span class="hljs-built_in">Object</span>.defineProperty(obj, <span class="hljs-string">"toString"</span>, {value: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{ <span class="hljs-keyword">return</span> <span class="hljs-string">"[object Type]"</span>; }});
         <span class="hljs-built_in">Object</span>.defineProperty(obj, <span class="hljs-string">"$__checker__"</span>, {value: checker});
-        make_derivable(obj);
+        makeDerivable(obj);
         
         <span class="hljs-built_in">Object</span>.freeze(obj);
         
         <span class="hljs-keyword">return</span> obj;
     }
     
-    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">make_derivable</span> (<span class="hljs-params">obj</span>) </span>{
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">makeDerivable</span> (<span class="hljs-params">obj</span>) </span>{
         
-        <span class="hljs-keyword">if</span> (!is_object(obj) || !<span class="hljs-built_in">Object</span>.isExtensible(obj)) {
+        <span class="hljs-keyword">if</span> (!isObject(obj) || !<span class="hljs-built_in">Object</span>.isExtensible(obj)) {
             <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">TypeError</span>(<span class="hljs-string">"Argument 'obj' is not derivable in call to make_derivable(obj)."</span>);
         }
         
@@ -477,39 +477,39 @@
     
     <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">derive</span> (<span class="hljs-params">child, parent</span>) </span>{
         
-        <span class="hljs-keyword">if</span> (!is_derivable(child)) {
-            make_derivable(child);
+        <span class="hljs-keyword">if</span> (!isDerivable(child)) {
+            makeDerivable(child);
         }
         
-        <span class="hljs-keyword">if</span> (!is_derivable(parent)) {
-            make_derivable(parent);
+        <span class="hljs-keyword">if</span> (!isDerivable(parent)) {
+            makeDerivable(parent);
         }
         
-        <span class="hljs-keyword">if</span> (descendant_of(child, parent)) {
+        <span class="hljs-keyword">if</span> (descendantOf(child, parent)) {
             <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">Error</span>(<span class="hljs-string">"Child is already a descendent of this parent."</span>);
         }
         
         parent.$__children__.push(child);
     }
     
-    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">descendant_of</span> (<span class="hljs-params">a, b</span>) </span>{
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">descendantOf</span> (<span class="hljs-params">a, b</span>) </span>{
         
-        <span class="hljs-keyword">if</span> (!is_derivable(a)) {
+        <span class="hljs-keyword">if</span> (!isDerivable(a)) {
             <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">TypeError</span>(<span class="hljs-string">"Parameter 'a' must be derivable."</span>);
         }
         
-        <span class="hljs-keyword">if</span> (!is_derivable(b)) {
+        <span class="hljs-keyword">if</span> (!isDerivable(b)) {
             <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">TypeError</span>(<span class="hljs-string">"Parameter 'b' must be derivable."</span>);
         }
         
         <span class="hljs-keyword">return</span> b.$__children__.some(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">c</span>) </span>{
-            <span class="hljs-keyword">return</span> (c === a ? <span class="hljs-literal">true</span> : c.$__children__.some(bind(descendant_of, a)));
+            <span class="hljs-keyword">return</span> (c === a ? <span class="hljs-literal">true</span> : c.$__children__.some(bind(descendantOf, a)));
         });
     }
     
-    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">is_a</span> (<span class="hljs-params">a, t</span>) </span>{
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">isA</span> (<span class="hljs-params">a, t</span>) </span>{
         
-        <span class="hljs-keyword">if</span> (!is_derivable(t)) {
+        <span class="hljs-keyword">if</span> (!isDerivable(t)) {
             
             <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span> t !== <span class="hljs-string">"function"</span>) {
                 <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;
@@ -518,11 +518,11 @@
             <span class="hljs-keyword">return</span> a <span class="hljs-keyword">instanceof</span> t;
         }
         
-        <span class="hljs-keyword">if</span> (is_derivable(a) &amp;&amp; descendant_of(a, t)) {
+        <span class="hljs-keyword">if</span> (isDerivable(a) &amp;&amp; descendantOf(a, t)) {
             <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;
         }
         
-        <span class="hljs-keyword">if</span> (!is_type(t)) {
+        <span class="hljs-keyword">if</span> (!isType(t)) {
             <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;
         }
         
@@ -531,29 +531,29 @@
         }
         
         <span class="hljs-keyword">return</span> t.$__children__.some(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">child</span>) </span>{
-            <span class="hljs-keyword">return</span> is_a(a, child);
+            <span class="hljs-keyword">return</span> isA(a, child);
         });
     }
     
-    <span class="hljs-keyword">var</span> t_primitive = type(is_primitive);
-    <span class="hljs-keyword">var</span> t_composite = type(is_object);
+    <span class="hljs-keyword">var</span> t_primitive = type(isPrimitive);
+    <span class="hljs-keyword">var</span> t_composite = type(isObject);
     
-    <span class="hljs-keyword">var</span> t_null = type(is_null);
-    <span class="hljs-keyword">var</span> t_undefined = type(is_undefined);
+    <span class="hljs-keyword">var</span> t_null = type(isNull);
+    <span class="hljs-keyword">var</span> t_undefined = type(isUndefined);
     
-    <span class="hljs-keyword">var</span> t_boolean = type(is_boolean);
+    <span class="hljs-keyword">var</span> t_boolean = type(isBoolean);
     
-    <span class="hljs-keyword">var</span> t_char = type(is_char);
-    <span class="hljs-keyword">var</span> t_string = type(is_string);
+    <span class="hljs-keyword">var</span> t_char = type(isChar);
+    <span class="hljs-keyword">var</span> t_string = type(isString);
     
-    <span class="hljs-keyword">var</span> t_number = type(is_number);
-    <span class="hljs-keyword">var</span> t_float = type(is_float);
-    <span class="hljs-keyword">var</span> t_integer = type(is_integer);
+    <span class="hljs-keyword">var</span> t_number = type(isNumber);
+    <span class="hljs-keyword">var</span> t_float = type(isFloat);
+    <span class="hljs-keyword">var</span> t_integer = type(isInteger);
     
-    <span class="hljs-keyword">var</span> t_object = type(is_object);
-    <span class="hljs-keyword">var</span> t_array = type(is_array);
+    <span class="hljs-keyword">var</span> t_object = type(isObject);
+    <span class="hljs-keyword">var</span> t_array = type(isArray);
     
-    <span class="hljs-keyword">var</span> t_function = type(is_function);
+    <span class="hljs-keyword">var</span> t_function = type(isFunction);
     
     derive(t_null, t_primitive);
     derive(t_undefined, t_primitive);
@@ -571,27 +571,27 @@
     
     <span class="hljs-built_in">Object</span>.defineProperty(out, <span class="hljs-string">"type"</span>, {value: type});
     <span class="hljs-built_in">Object</span>.defineProperty(out, <span class="hljs-string">"derive"</span>, {value: derive});
-    <span class="hljs-built_in">Object</span>.defineProperty(out, <span class="hljs-string">"make_derivable"</span>, {value: make_derivable});
+    <span class="hljs-built_in">Object</span>.defineProperty(out, <span class="hljs-string">"makeDerivable"</span>, {value: makeDerivable});
     <span class="hljs-built_in">Object</span>.defineProperty(out, <span class="hljs-string">"valid"</span>, {value: valid});
     <span class="hljs-built_in">Object</span>.defineProperty(out, <span class="hljs-string">"validator"</span>, {value: validator});
     
-    <span class="hljs-built_in">Object</span>.defineProperty(out, <span class="hljs-string">"is_a"</span>, {value: is_a});
-    <span class="hljs-built_in">Object</span>.defineProperty(out, <span class="hljs-string">"is_null"</span>, {value: is_null});
-    <span class="hljs-built_in">Object</span>.defineProperty(out, <span class="hljs-string">"is_undefined"</span>, {value: is_undefined});
-    <span class="hljs-built_in">Object</span>.defineProperty(out, <span class="hljs-string">"is_boolean"</span>, {value: is_boolean});
-    <span class="hljs-built_in">Object</span>.defineProperty(out, <span class="hljs-string">"is_number"</span>, {value: is_number});
-    <span class="hljs-built_in">Object</span>.defineProperty(out, <span class="hljs-string">"is_integer"</span>, {value: is_integer});
-    <span class="hljs-built_in">Object</span>.defineProperty(out, <span class="hljs-string">"is_float"</span>, {value: is_float});
-    <span class="hljs-built_in">Object</span>.defineProperty(out, <span class="hljs-string">"is_string"</span>, {value: is_string});
-    <span class="hljs-built_in">Object</span>.defineProperty(out, <span class="hljs-string">"is_char"</span>, {value: is_char});
-    <span class="hljs-built_in">Object</span>.defineProperty(out, <span class="hljs-string">"is_colllection"</span>, {value: is_collection});
-    <span class="hljs-built_in">Object</span>.defineProperty(out, <span class="hljs-string">"is_object"</span>, {value: is_object});
-    <span class="hljs-built_in">Object</span>.defineProperty(out, <span class="hljs-string">"is_array"</span>, {value: is_array});
-    <span class="hljs-built_in">Object</span>.defineProperty(out, <span class="hljs-string">"is_function"</span>, {value: is_function});
-    <span class="hljs-built_in">Object</span>.defineProperty(out, <span class="hljs-string">"is_primitive"</span>, {value: is_primitive});
-    <span class="hljs-built_in">Object</span>.defineProperty(out, <span class="hljs-string">"is_type"</span>, {value: is_type});
-    <span class="hljs-built_in">Object</span>.defineProperty(out, <span class="hljs-string">"is_derivable"</span>, {value: is_derivable});
-    <span class="hljs-built_in">Object</span>.defineProperty(out, <span class="hljs-string">"is_method"</span>, {value: is_method});
+    <span class="hljs-built_in">Object</span>.defineProperty(out, <span class="hljs-string">"isA"</span>, {value: isA});
+    <span class="hljs-built_in">Object</span>.defineProperty(out, <span class="hljs-string">"isNull"</span>, {value: isNull});
+    <span class="hljs-built_in">Object</span>.defineProperty(out, <span class="hljs-string">"isUndefined"</span>, {value: isUndefined});
+    <span class="hljs-built_in">Object</span>.defineProperty(out, <span class="hljs-string">"isBoolean"</span>, {value: isBoolean});
+    <span class="hljs-built_in">Object</span>.defineProperty(out, <span class="hljs-string">"isNumber"</span>, {value: isNumber});
+    <span class="hljs-built_in">Object</span>.defineProperty(out, <span class="hljs-string">"isInteger"</span>, {value: isInteger});
+    <span class="hljs-built_in">Object</span>.defineProperty(out, <span class="hljs-string">"isFloat"</span>, {value: isFloat});
+    <span class="hljs-built_in">Object</span>.defineProperty(out, <span class="hljs-string">"isString"</span>, {value: isString});
+    <span class="hljs-built_in">Object</span>.defineProperty(out, <span class="hljs-string">"isChar"</span>, {value: isChar});
+    <span class="hljs-built_in">Object</span>.defineProperty(out, <span class="hljs-string">"isColllection"</span>, {value: isCollection});
+    <span class="hljs-built_in">Object</span>.defineProperty(out, <span class="hljs-string">"isObject"</span>, {value: isObject});
+    <span class="hljs-built_in">Object</span>.defineProperty(out, <span class="hljs-string">"isArray"</span>, {value: isArray});
+    <span class="hljs-built_in">Object</span>.defineProperty(out, <span class="hljs-string">"isFunction"</span>, {value: isFunction});
+    <span class="hljs-built_in">Object</span>.defineProperty(out, <span class="hljs-string">"isPrimitive"</span>, {value: isPrimitive});
+    <span class="hljs-built_in">Object</span>.defineProperty(out, <span class="hljs-string">"isType"</span>, {value: isType});
+    <span class="hljs-built_in">Object</span>.defineProperty(out, <span class="hljs-string">"isDerivable"</span>, {value: isDerivable});
+    <span class="hljs-built_in">Object</span>.defineProperty(out, <span class="hljs-string">"isMethod"</span>, {value: isMethod});
     
     <span class="hljs-built_in">Object</span>.defineProperty(out, <span class="hljs-string">"t_primitive"</span>, {value: t_primitive});
     <span class="hljs-built_in">Object</span>.defineProperty(out, <span class="hljs-string">"t_composite"</span>, {value: t_composite});
@@ -1067,7 +1067,7 @@ and the collection itself to a reducer function <code>fn</code>.</p>
                 }
             }
             
-            <span class="hljs-keyword">if</span> (some(out.hidden_properties, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">key</span>) </span>{ <span class="hljs-keyword">return</span> a[key] !== b[key]; })) {
+            <span class="hljs-keyword">if</span> (some(out.hiddenProperties, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">key</span>) </span>{ <span class="hljs-keyword">return</span> a[key] !== b[key]; })) {
                 <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;
             }
             
@@ -1089,7 +1089,7 @@ and the collection itself to a reducer function <code>fn</code>.</p>
         }
     });
     
-    specialize(each, is_array, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">collection, fn</span>) </span>{
+    specialize(each, isArray, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">collection, fn</span>) </span>{
         <span class="hljs-keyword">return</span> collection.forEach(fn);
     });
     
@@ -1205,19 +1205,19 @@ Java implementation of Clojure.</p>
         <span class="hljs-keyword">return</span> vec;
     }
     
-    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">is_vector</span> (<span class="hljs-params">thing</span>) </span>{
-        <span class="hljs-keyword">return</span> is_object(thing) &amp;&amp; thing.$__type__ === <span class="hljs-string">"vector"</span>;
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">isVector</span> (<span class="hljs-params">thing</span>) </span>{
+        <span class="hljs-keyword">return</span> isObject(thing) &amp;&amp; thing.$__type__ === <span class="hljs-string">"vector"</span>;
     }
     
-    <span class="hljs-keyword">var</span> t_vector = type(is_vector);
+    <span class="hljs-keyword">var</span> t_vector = type(isVector);
     
     <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">v_at</span> (<span class="hljs-params">vec, i</span>) </span>{
-        <span class="hljs-keyword">return</span> v_node_at(vec, i).content[i &amp; V_MASK];
+        <span class="hljs-keyword">return</span> v_nodeAt(vec, i).content[i &amp; V_MASK];
     }
     
     specialize(at, t_vector, v_at);
     
-    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">v_node_at</span> (<span class="hljs-params">vec, i</span>) </span>{
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">v_nodeAt</span> (<span class="hljs-params">vec, i</span>) </span>{
         
         <span class="hljs-keyword">var</span> level;
         <span class="hljs-keyword">var</span> node = vec.$__root__;
@@ -1225,7 +1225,7 @@ Java implementation of Clojure.</p>
         
         <span class="hljs-keyword">if</span> (i &gt;= <span class="hljs-number">0</span> &amp;&amp; i &lt; vec.$__count__) {
             
-            <span class="hljs-keyword">if</span> (i &gt;= v_tail_off(vec)) {
+            <span class="hljs-keyword">if</span> (i &gt;= v_tailOff(vec)) {
                 <span class="hljs-keyword">return</span> vec.$__tail__;
             }
             
@@ -1239,7 +1239,7 @@ Java implementation of Clojure.</p>
         <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">RangeError</span>(<span class="hljs-string">"Vector index out of bounds:"</span>, i);
     }
     
-    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">v_tail_off</span> (<span class="hljs-params">vec</span>) </span>{
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">v_tailOff</span> (<span class="hljs-params">vec</span>) </span>{
         
         <span class="hljs-keyword">if</span> (vec.$__count__ &lt; V_WIDTH) {
             <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;
@@ -1267,28 +1267,28 @@ Java implementation of Clojure.</p>
         <span class="hljs-keyword">var</span> root = vec.$__root__;
         <span class="hljs-keyword">var</span> count = vec.$__count__;
         <span class="hljs-keyword">var</span> shift = vec.$__shift__;
-        <span class="hljs-keyword">var</span> new_tail, new_shift, new_root, expansion;
+        <span class="hljs-keyword">var</span> newTail, newShift, newRoot, expansion;
         
         <span class="hljs-keyword">if</span> (tail.content.length &lt; V_WIDTH) {
-            new_tail = v_node(tail.content);
-            new_tail.content.push(value);
-            <span class="hljs-keyword">return</span> v_create(count + <span class="hljs-number">1</span>, shift, root, new_tail);
+            newTail = v_node(tail.content);
+            newTail.content.push(value);
+            <span class="hljs-keyword">return</span> v_create(count + <span class="hljs-number">1</span>, shift, root, newTail);
         }
         
         expansion = {};
-        new_tail = v_node([value]);
-        new_shift = shift;
-        new_root = v_push_tail(shift - V_BITS, root, tail, expansion);
+        newTail = v_node([value]);
+        newShift = shift;
+        newRoot = v_pushTail(shift - V_BITS, root, tail, expansion);
         
         <span class="hljs-keyword">if</span> (expansion.val !== <span class="hljs-literal">null</span>) {
-            new_root = v_node([new_root, expansion.val]);
-            new_shift += V_BITS;
+            newRoot = v_node([newRoot, expansion.val]);
+            newShift += V_BITS;
         }
         
-        <span class="hljs-keyword">return</span> v_create(count + <span class="hljs-number">1</span>, new_shift, new_root, new_tail);
+        <span class="hljs-keyword">return</span> v_create(count + <span class="hljs-number">1</span>, newShift, newRoot, newTail);
     }
     
-    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">v_push_tail</span> (<span class="hljs-params">level, root, tail, expansion</span>) </span>{
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">v_pushTail</span> (<span class="hljs-params">level, root, tail, expansion</span>) </span>{
         
         <span class="hljs-keyword">var</span> new_child, ret;
         
@@ -1297,7 +1297,7 @@ Java implementation of Clojure.</p>
         }
         <span class="hljs-keyword">else</span> {
             
-            new_child = v_push_tail(level - V_BITS, v_node(), tail, expansion);
+            new_child = v_pushTail(level - V_BITS, v_node(), tail, expansion);
             
             <span class="hljs-keyword">if</span> (expansion.val === <span class="hljs-literal">null</span>) {
                 ret = v_node(root.content);
@@ -1339,7 +1339,7 @@ Java implementation of Clojure.</p>
     <span class="hljs-built_in">Object</span>.defineProperty(out, <span class="hljs-string">"V_WIDTH"</span>, {value: V_WIDTH});
     <span class="hljs-built_in">Object</span>.defineProperty(out, <span class="hljs-string">"V_MASK"</span>, {value: V_MASK});
     <span class="hljs-built_in">Object</span>.defineProperty(out, <span class="hljs-string">"v"</span>, {value: v});
-    <span class="hljs-built_in">Object</span>.defineProperty(out, <span class="hljs-string">"is_vector"</span>, {value: is_vector});
+    <span class="hljs-built_in">Object</span>.defineProperty(out, <span class="hljs-string">"isVector"</span>, {value: isVector});
     <span class="hljs-built_in">Object</span>.defineProperty(out, <span class="hljs-string">"t_vector"</span>, {value: t_vector});
         
     <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">id</span> (<span class="hljs-params">thing</span>) </span>{

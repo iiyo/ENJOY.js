@@ -8,7 +8,7 @@
         }
     });
     
-    specialize(each, is_array, function (collection, fn) {
+    specialize(each, isArray, function (collection, fn) {
         return collection.forEach(fn);
     });
     

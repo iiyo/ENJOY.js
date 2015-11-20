@@ -23,19 +23,19 @@
         return vec;
     }
     
-    function is_vector (thing) {
-        return is_object(thing) && thing.$__type__ === "vector";
+    function isVector (thing) {
+        return isObject(thing) && thing.$__type__ === "vector";
     }
     
-    var t_vector = type(is_vector);
+    var t_vector = type(isVector);
     
     function v_at (vec, i) {
-        return v_node_at(vec, i).content[i & V_MASK];
+        return v_nodeAt(vec, i).content[i & V_MASK];
     }
     
     specialize(at, t_vector, v_at);
     
-    function v_node_at (vec, i) {
+    function v_nodeAt (vec, i) {
         
         var level;
         var node = vec.$__root__;
@@ -43,7 +43,7 @@
         
         if (i >= 0 && i < vec.$__count__) {
             
-            if (i >= v_tail_off(vec)) {
+            if (i >= v_tailOff(vec)) {
                 return vec.$__tail__;
             }
             
@@ -57,7 +57,7 @@
         throw new RangeError("Vector index out of bounds:", i);
     }
     
-    function v_tail_off (vec) {
+    function v_tailOff (vec) {
         
         if (vec.$__count__ < V_WIDTH) {
             return 0;
@@ -85,28 +85,28 @@
         var root = vec.$__root__;
         var count = vec.$__count__;
         var shift = vec.$__shift__;
-        var new_tail, new_shift, new_root, expansion;
+        var newTail, newShift, newRoot, expansion;
         
         if (tail.content.length < V_WIDTH) {
-            new_tail = v_node(tail.content);
-            new_tail.content.push(value);
-            return v_create(count + 1, shift, root, new_tail);
+            newTail = v_node(tail.content);
+            newTail.content.push(value);
+            return v_create(count + 1, shift, root, newTail);
         }
         
         expansion = {};
-        new_tail = v_node([value]);
-        new_shift = shift;
-        new_root = v_push_tail(shift - V_BITS, root, tail, expansion);
+        newTail = v_node([value]);
+        newShift = shift;
+        newRoot = v_pushTail(shift - V_BITS, root, tail, expansion);
         
         if (expansion.val !== null) {
-            new_root = v_node([new_root, expansion.val]);
-            new_shift += V_BITS;
+            newRoot = v_node([newRoot, expansion.val]);
+            newShift += V_BITS;
         }
         
-        return v_create(count + 1, new_shift, new_root, new_tail);
+        return v_create(count + 1, newShift, newRoot, newTail);
     }
     
-    function v_push_tail (level, root, tail, expansion) {
+    function v_pushTail (level, root, tail, expansion) {
         
         var new_child, ret;
         
@@ -115,7 +115,7 @@
         }
         else {
             
-            new_child = v_push_tail(level - V_BITS, v_node(), tail, expansion);
+            new_child = v_pushTail(level - V_BITS, v_node(), tail, expansion);
             
             if (expansion.val === null) {
                 ret = v_node(root.content);
@@ -157,6 +157,6 @@
     Object.defineProperty(out, "V_WIDTH", {value: V_WIDTH});
     Object.defineProperty(out, "V_MASK", {value: V_MASK});
     Object.defineProperty(out, "v", {value: v});
-    Object.defineProperty(out, "is_vector", {value: is_vector});
+    Object.defineProperty(out, "isVector", {value: isVector});
     Object.defineProperty(out, "t_vector", {value: t_vector});
     

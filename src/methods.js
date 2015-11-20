@@ -54,7 +54,7 @@
                         return true;
                     }
                     
-                    if (is_a(dispatchValue, comparator)) {
+                    if (isA(dispatchValue, comparator)) {
                         currentScore += METHOD_PRECEDENCE_SCORE_IS_A * argumentOrderModificator;
                         return true;
                     }

@@ -4,76 +4,76 @@ var assert = require("assert");
 var enjoy = require("../bin/enjoy-core.js");
 
 var type = enjoy.type;
-var is_a = enjoy.is_a;
-var is_null = enjoy.is_null;
-var is_undefined = enjoy.is_undefined;
-var is_boolean = enjoy.is_boolean;
-var is_number = enjoy.is_number;
-var is_integer = enjoy.is_integer;
-var is_float = enjoy.is_float;
+var isA = enjoy.isA;
+var isNull = enjoy.isNull;
+var isUndefined = enjoy.isUndefined;
+var isBoolean = enjoy.isBoolean;
+var isNumber = enjoy.isNumber;
+var isInteger = enjoy.isInteger;
+var isFloat = enjoy.isFloat;
 
 describe("types", function () {
     
     describe("predicates", function () {
         
-        it("is_null(a)", function () {
+        it("isNull(a)", function () {
             
-            assert(is_null(null), "is_null(null)");
+            assert(isNull(null), "isNull(null)");
             
             [
                 NaN, undefined, -10, -1.1, -1, 0, 1, 1.2, 10, "foo", "bar",
                 {}, {a: 1, b: 2}, [], [1, 2, 3, "foo"], false, true, Infinity, -Infinity, /^abc/
             ].
             forEach(function (value) {
-                assert(is_null(value) === false, "is_null(" + value + ")");
+                assert(isNull(value) === false, "isNull(" + value + ")");
             });
         });
         
-        it("is_undefined(a)", function () {
+        it("isUndefined(a)", function () {
             
-            assert(is_undefined(undefined), "is_undefined(undefined)");
+            assert(isUndefined(undefined), "isUndefined(undefined)");
             
             [
                 NaN, null, -10, -1.1, -1, 0, 1, 1.2, 10, "foo", "bar",
                 {}, {a: 1, b: 2}, [], [1, 2, 3, "foo"], false, true, Infinity, -Infinity, /^abc/
             ].forEach(function (value) {
-                assert(is_undefined(value) === false, "is_undefined(" + value + ")");
+                assert(isUndefined(value) === false, "isUndefined(" + value + ")");
             });
         });
         
-        it("is_boolean(a)", function () {
+        it("isBoolean(a)", function () {
             
-            assert(is_boolean(true), "is_boolean(true)");
-            assert(is_boolean(false), "is_boolean(false)");
+            assert(isBoolean(true), "isBoolean(true)");
+            assert(isBoolean(false), "isBoolean(false)");
             
             [
                 NaN, null, undefined, -10, -1.1, -1, 0, 1, 1.2, 10, "foo", "bar",
                 {}, {a: 1, b: 2}, [], [1, 2, 3, "foo"], Infinity, -Infinity, /^abc/
             ].forEach(function (value) {
-                assert(is_boolean(value) === false, "is_boolean(" + value + ")");
+                assert(isBoolean(value) === false, "isBoolean(" + value + ")");
             });
         });
         
-        it("is_number(a)", function () {
+        it("isNumber(a)", function () {
             
             [
                 -5e13, -20, -10, -5, -1, 0, 1, 2, 3, 10, 20, 5e10, 0x0888, NaN,
                 -10.223, -5.4, -1.111, -1.000, 0.000, 0.002, Math.PI, Infinity, -Infinity
             ].forEach(function (value) {
-                assert(is_number(value) === true, "is_number(" + value + ")");
+                assert(isNumber(value) === true, "isNumber(" + value + ")");
             });
             
             [
                 null, "foo", "bar", true, false, {}, {a: 1, b: 2}, [], [1, 2, 3, "foo"], /^abc/
             ].forEach(function (value) {
-                assert(is_number(value) === false, "is_number(" + value + ")");
+                assert(isNumber(value) === false, "isNumber(" + value + ")");
             });
         });
     });
     
     describe("type(checker)", function () {
         
-        it("is_a() should always return false with a type that has no checker", function () {
+        it("isA() should always return false with a type that has no checker", function () {
             
             var t = type();
             
@@ -88,33 +88,33 @@ describe("types", function () {
                 /^a/, /args/i
             ].
             forEach(function (value) {
-                assert.equal(is_a(value, t), false);
+                assert.equal(isA(value, t), false);
             });
         });
         
         it("should work with predicate functions as the checker", function () {
             
-            var t_int = type(is_integer);
+            var t_int = type(isInteger);
             
             [
                 -2000000, -20, -10, -1, 0, 1, 2, 3, 5, 10, 20, 100, 1000000
             ].
             forEach(function (value) {
-                assert(is_a(value, t_int) === true, "value: " + value);
+                assert(isA(value, t_int) === true, "value: " + value);
             });
             
             [
                 -2000000.324, -20.5676, -10.0001, -1.11132, 0.01, 1.002, 2.02, 10.33, 1000000.01
             ].
             forEach(function (value) {
-                assert(is_a(value, t_int) === false, "value: " + value);
+                assert(isA(value, t_int) === false, "value: " + value);
             });
         });
         
         it("should work with schemas as the checker", function () {
             
             var t_something = type({
-                a: is_integer,
+                a: isInteger,
                 b: 3
             });
             
@@ -130,14 +130,14 @@ describe("types", function () {
                 c(1, 3), c(-10, 3), c(0, 3), c(1, 3), c(-1, 3), c(100, 3), c(1023, 3), d(4, 3, 14)
             ].
             forEach(function (value) {
-                assert(is_a(value, t_something) === true, "values: " + value.a + ", " + value.b);
+                assert(isA(value, t_something) === true, "values: " + value.a + ", " + value.b);
             });
             
             [
                 c(1.01, 3), c(-1.2, 3), c(-1, 4), c("foo", 3), c(-1.1, 3.4), c([], {}), d(2.2, 3, 1)
             ].
             forEach(function (value) {
-                assert(is_a(value, t_something) === false, "values: " + value.a + ", " + value.b);
+                assert(isA(value, t_something) === false, "values: " + value.a + ", " + value.b);
             });
         });
     });
