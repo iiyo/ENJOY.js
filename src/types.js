@@ -286,7 +286,7 @@
     Object.defineProperty(out, "t_array", {value: t_array});
     Object.defineProperty(out, "t_function", {value: t_function});
     
-    out.hidden_properties.push("$__type__");
-    out.hidden_properties.push("$__children__");
-    out.hidden_properties.push("$__checker__");
+    out.hiddenProperties.push("$__type__");
+    out.hiddenProperties.push("$__children__");
+    out.hiddenProperties.push("$__checker__");
     

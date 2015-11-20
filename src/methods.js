@@ -170,11 +170,11 @@
         }
     }
     
-    out.hidden_properties.push("$__comparators__");
-    out.hidden_properties.push("$__default__");
-    out.hidden_properties.push("$__dispatchers__");
-    out.hidden_properties.push("$__implementation__");
-    out.hidden_properties.push("$__implementations__");
+    out.hiddenProperties.push("$__comparators__");
+    out.hiddenProperties.push("$__default__");
+    out.hiddenProperties.push("$__dispatchers__");
+    out.hiddenProperties.push("$__implementation__");
+    out.hiddenProperties.push("$__implementations__");
     
     Object.defineProperty(out, "specialize", {value: specialize});
     

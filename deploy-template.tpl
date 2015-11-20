@@ -3,7 +3,7 @@
 (function () {
     
     var out = {
-        hidden_properties: [],
+        hiddenProperties: [],
         poly: {}, /* methods for basic functions */
         core: {} /* basic functions */
     };

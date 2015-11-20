@@ -415,7 +415,7 @@ using.ajax = (function () {
 (function () {
     
     var out = {
-        hidden_properties: [],
+        hiddenProperties: [],
         poly: {}, /* methods for basic functions */
         core: {} /* basic functions */
     };
@@ -692,11 +692,11 @@ using.ajax = (function () {
         }
     }
     
-    out.hidden_properties.push("$__comparators__");
-    out.hidden_properties.push("$__default__");
-    out.hidden_properties.push("$__dispatchers__");
-    out.hidden_properties.push("$__implementation__");
-    out.hidden_properties.push("$__implementations__");
+    out.hiddenProperties.push("$__comparators__");
+    out.hiddenProperties.push("$__default__");
+    out.hiddenProperties.push("$__dispatchers__");
+    out.hiddenProperties.push("$__implementation__");
+    out.hiddenProperties.push("$__implementations__");
     
     Object.defineProperty(out, "specialize", {value: specialize});
         
@@ -987,9 +987,9 @@ using.ajax = (function () {
     Object.defineProperty(out, "t_array", {value: t_array});
     Object.defineProperty(out, "t_function", {value: t_function});
     
-    out.hidden_properties.push("$__type__");
-    out.hidden_properties.push("$__children__");
-    out.hidden_properties.push("$__checker__");
+    out.hiddenProperties.push("$__type__");
+    out.hiddenProperties.push("$__children__");
+    out.hiddenProperties.push("$__checker__");
         
     function contains (collection, item) {
         return some(collection, function (currentItem) {

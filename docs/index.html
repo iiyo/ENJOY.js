@@ -35,7 +35,7 @@
 (<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
     
     <span class="hljs-keyword">var</span> out = {
-        hidden_properties: [],
+        hiddenProperties: [],
         poly: {}, <span class="hljs-comment">/* methods for basic functions */</span>
         core: {} <span class="hljs-comment">/* basic functions */</span>
     };
@@ -312,11 +312,11 @@
         }
     }
     
-    out.hidden_properties.push(<span class="hljs-string">"$__comparators__"</span>);
-    out.hidden_properties.push(<span class="hljs-string">"$__default__"</span>);
-    out.hidden_properties.push(<span class="hljs-string">"$__dispatchers__"</span>);
-    out.hidden_properties.push(<span class="hljs-string">"$__implementation__"</span>);
-    out.hidden_properties.push(<span class="hljs-string">"$__implementations__"</span>);
+    out.hiddenProperties.push(<span class="hljs-string">"$__comparators__"</span>);
+    out.hiddenProperties.push(<span class="hljs-string">"$__default__"</span>);
+    out.hiddenProperties.push(<span class="hljs-string">"$__dispatchers__"</span>);
+    out.hiddenProperties.push(<span class="hljs-string">"$__implementation__"</span>);
+    out.hiddenProperties.push(<span class="hljs-string">"$__implementations__"</span>);
     
     <span class="hljs-built_in">Object</span>.defineProperty(out, <span class="hljs-string">"specialize"</span>, {value: specialize});
         
@@ -607,9 +607,9 @@
     <span class="hljs-built_in">Object</span>.defineProperty(out, <span class="hljs-string">"t_array"</span>, {value: t_array});
     <span class="hljs-built_in">Object</span>.defineProperty(out, <span class="hljs-string">"t_function"</span>, {value: t_function});
     
-    out.hidden_properties.push(<span class="hljs-string">"$__type__"</span>);
-    out.hidden_properties.push(<span class="hljs-string">"$__children__"</span>);
-    out.hidden_properties.push(<span class="hljs-string">"$__checker__"</span>);
+    out.hiddenProperties.push(<span class="hljs-string">"$__type__"</span>);
+    out.hiddenProperties.push(<span class="hljs-string">"$__children__"</span>);
+    out.hiddenProperties.push(<span class="hljs-string">"$__checker__"</span>);
         
     <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">contains</span> (<span class="hljs-params">collection, item</span>) </span>{
         <span class="hljs-keyword">return</span> some(collection, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">currentItem</span>) </span>{
